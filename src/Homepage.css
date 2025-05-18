@@ -1,0 +1,134 @@
+/* Homepage.css */
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f4f6f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.main-container {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  position: relative;
+}
+
+/* Sidebar Dashboard */
+.sidebar {
+  width: 80px;
+  background: #a7c6e4;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: width 0.3s ease-in-out;
+  position: absolute;
+  left: 0;
+  height: 50vh;
+  overflow: hidden;
+}
+
+/* Sidebar Expanded */
+.sidebar.expanded {
+  width: 75%;
+}
+
+/* Sidebar Toggle Button */
+.toggle-btn {
+  background: #007bff;
+  color: white;
+  padding: 6px;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.toggle-btn:hover {
+  background: #0056b3;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+  margin-top: 20px;
+}
+
+.sidebar h2 {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-radius: 8px;
+}
+
+.sidebar li:hover {
+  background: #495057;
+}
+
+/* Journal Area */
+.homepage-content {
+  flex: 1;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-left: 100px;
+  transition: margin-left 0.5s ease-in-out;
+}
+
+/* Adjust Journal Area when Sidebar Expands */
+.homepage-content.shifted {
+  margin-left: 75%;
+}
+
+/* Entries Section */
+.entries {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h3 {
+  color: #444;
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background: #ffffff;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #212529;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  border-left: 6px solid #007bff;
+  transition: transform 0.2s ease-in-out;
+}
+
+li:hover {
+  transform: scale(1.03);
+}
