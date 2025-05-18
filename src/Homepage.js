@@ -51,15 +51,13 @@ const Homepage = () => {
         </div>
         <div className="entries">
           <h3>Your Journal Entries</h3>
-          {entries.length > 0 ? (
-            <ul>
-              {entries.map((entry, index) => (
-                <li key={index}>{entry}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No entries yet ... Start writing!</p>
-          )}
+          {entries.length > 0
+            ? (
+              <ul>
+                {entries.map((entry, index) => <li key={index}>{entry}</li>)}
+              </ul>
+            )
+            : <p>No entries yet ... Start writing!</p>}
         </div>
       </main>
     </div>
