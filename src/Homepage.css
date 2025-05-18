@@ -2,18 +2,21 @@
 body {
   font-family: "Poppins", sans-serif;
   background-color: #f4f6f9;
-  display: flex;
+  /* display: flex; */
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
   margin: 0;
+  padding: 0;
 }
 
 .main-container {
   display: flex;
+  height: 50vh;
   width: 90%;
   max-width: 1200px;
   position: relative;
+  /* overflow: hidden; */
 }
 
 /* Sidebar Dashboard */
@@ -25,16 +28,15 @@ body {
   border-radius: 5px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: width 0.3s ease-in-out;
+  transition: width 0.5s ease-in-out;
   position: absolute;
   left: 0;
   height: 50vh;
-  overflow: hidden;
 }
 
 /* Sidebar Expanded */
 .sidebar.expanded {
-  width: 75%;
+  width: 200px;
 }
 
 /* Sidebar Toggle Button */
@@ -85,12 +87,14 @@ body {
 .homepage-content {
   flex: 1;
   background: white;
-  padding: 40px;
+  padding: 20px;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
   margin-left: 100px;
   transition: margin-left 0.5s ease-in-out;
+  height: 50vh;
+  width: 30vh;
 }
 
 /* Adjust Journal Area when Sidebar Expands */
@@ -103,6 +107,10 @@ body {
   background: #f8f9fa;
   padding: 20px;
   border-radius: 10px;
+}
+
+textarea {
+  resize: none;
 }
 
 h3 {
