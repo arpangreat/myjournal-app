@@ -39,7 +39,8 @@ const Homepage = () => {
       </aside>
 
       {/* Journal Area */}
-      <main className={`homepage-content ${sidebarOpen ? "shifted" : ""}`}>
+      {/* <main className={`homepage-content ${sidebarOpen ? "shifted" : ""}`}> */}
+      <main className={"homepage-content"}>
         <h2>Welcome to My Journal</h2>
         <div className="entry-box">
           <textarea

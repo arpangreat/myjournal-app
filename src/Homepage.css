@@ -21,21 +21,24 @@ body {
 
 /* Sidebar Dashboard */
 .sidebar {
-  width: 80px;
+  width: 90px;
   background: #a7c6e4;
   color: white;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: width 0.5s ease-in-out;
+  transition: transform 0.5s ease, width 0.5s ease;
+  z-index: 2;
   position: absolute;
   left: 0;
+  top: 0;
   height: 50vh;
 }
 
 /* Sidebar Expanded */
 .sidebar.expanded {
+  transform: translateX(-120px);
   width: 200px;
 }
 
@@ -89,10 +92,10 @@ body {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
   margin-left: 100px;
-  transition: margin-left 0.5s ease-in-out;
+  /* transition: margin-left 0.5s ease-in-out; */
   height: 50vh;
   width: 30vh;
 }
