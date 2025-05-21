@@ -4,18 +4,23 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+console.log("MyJournal App is running successfully!");
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <BrowserRouter> 
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
-);
+// Ensure the root element exists in public/index.html
+const rootElement = document.getElementById("root");
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>
+  );
 
+  // Start measuring performance
+  reportWebVitals();
+} else {
+  console.error("Root element not found! Ensure you have <div id='root'></div> in public/index.html.");
+}
