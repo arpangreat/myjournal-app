@@ -21,23 +21,23 @@ body {
 
 /* Sidebar Dashboard */
 .sidebar {
-<<<<<<< HEAD
+
   width: 80px;
-  background: rgb(119, 134, 255);
+  background: rgb(126, 111, 239);
   color: white;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
-=======
+
   width: 90px;
-  background: #a7c6e4;
+  background: #2e3944;
   color: white;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
->>>>>>> d56b45540260590d991539537cf4f848f7db0acc
+
   cursor: pointer;
-  transition: transform 0.5s ease, width 0.5s ease;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
   z-index: 2;
   position: absolute;
   left: 0;
@@ -45,10 +45,11 @@ body {
   height: 50vh;
 }
 
-/* Sidebar Expanded */
+
+
 .sidebar.expanded {
-  transform: translateX(-120px);
-  width: 200px;
+  transform: translateX(5vw);
+  width: 12vw;
 }
 
 /* Sidebar Toggle Button */
@@ -98,14 +99,11 @@ body {
 /* Journal Area */
 .homepage-content {
   flex: 1;
-  background: rgba(173, 182, 255, 0.899);
+  background: rgba(146, 42, 101, 0.899);
   padding: 20px;
   border-radius: 12px;
-<<<<<<< HEAD
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
-=======
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
->>>>>>> d56b45540260590d991539537cf4f848f7db0acc
   text-align: center;
   margin-left: 100px;
   /* transition: margin-left 0.5s ease-in-out; */
@@ -120,7 +118,7 @@ body {
 
 /* Entries Section */
 .entries {
-  background: rgba(173, 182, 255, 0.899);
+  background: rgba(255, 255, 255, 0.899);
   padding: 20px;
   border-radius: 10px;
 }
