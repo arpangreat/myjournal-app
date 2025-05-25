@@ -125,7 +125,7 @@ const handleDeleteEntry = (index) => {
     ))}
   </ul>
 ) : (
-  <p>No matching entries found.</p>
+  <p>No entries </p>
 )}
 
         </div>
