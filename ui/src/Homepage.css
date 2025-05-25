@@ -11,16 +11,18 @@ body {
 
 .main-container {
   display: flex;
-  height: 50vh;
-  width: 90%;
-  max-width: 1200px;
+  flex-direction: column; /* For top menu + content layout */
+  height: 100vh;
+  width: 100vw;
+  background-color: #f4f6f9;
+  font-family: "Poppins", sans-serif;
   position: relative;
+  overflow: hidden;
 }
-
 /* Sidebar Dashboard */
 .sidebar {
   width: 90px;
-  background: #2e3944;
+  background: #ffdaf8;
   color: white;
   padding: 20px;
   border-radius: 5px;
@@ -31,11 +33,10 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  height: 50vh;
+  height: 100vh;
 }
-
 .sidebar.expanded {
-  width: 12vw; /* Expands without shifting its position */
+  width: 30vw; /* Expands without shifting its position */
 }
 
 /* Sidebar Toggle Button */
@@ -51,7 +52,7 @@ body {
 }
 
 .toggle-btn:hover {
-  background: #b9fffb;
+  background: #effdfc;
 }
 
 /* Sidebar Content */
@@ -79,20 +80,23 @@ body {
 }
 
 .sidebar li:hover {
-  background: #b9fffb;
+  background: #e7fffe;
 }
-
 /* Journal Area */
 .homepage-content {
-  flex: 1;
-  background: rgba(146, 42, 101, 0.899);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  margin-left: 100px;
-  height: 50vh;
-  width: 30vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column; /* For top menu + content layout */
+  height: 100vh;
+  width: 100vw;
+  padding: 2rem;
+  border-radius: 0%;
+  box-sizing: border-box;
+  background-color: #b1d0ff;
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  overflow: hidden;;
 }
 
 /* Adjust Journal Area when Sidebar Expands */
@@ -129,13 +133,14 @@ textarea {
 }
 
 h2 {
-  color: #003f3c;
+  align-items: center;
+  color: #000000;
 }
 
 h3 {
   color: #003f3c;
   font-size: 22px;
-  margin-bottom: 15px;
+  margin-bottom: 1px;
 }
 
 ul {
@@ -286,22 +291,12 @@ input:checked + .slider::before {
   display: flex;
   align-items: center;
 }
-/* clear text in search container*/
-.clear-icon {
-  font-size: 12px;
-  margin-left: 8px;
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition: background-color 0.3s;
-}
-
-.clear-icon:hover {
-  background-color: #fffafa32;
-}
 
 .search-icon {
+  position: fixed;
+  top: 1.3rem;
+  right: 0.8rem;
+  z-index: 1000;
   font-size: 22px;
   cursor: pointer;
   padding: 5px;
@@ -315,14 +310,9 @@ input:checked + .slider::before {
   margin-left: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 180px;
+  width: 300px;
   z-index: 999;
   font-size: 14px;
 }
 
-/* Highlights matching search text */
-mark {
-  background-color: yellow;
-  font-weight: bold;
-}
 
