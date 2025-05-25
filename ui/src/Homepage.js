@@ -66,14 +66,14 @@ const handleDeleteEntry = (index) => {
       <div className="search-container">
         <span className="search-icon" onClick={() => setSearchOpen(!searchOpen)}>🔍</span>
         {searchOpen && (
-          <input
-            type="text"
+          <input 
+            type="text" 
             className="search-input"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by date or keyword"
+            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by date or keyword" 
           />
         )}
+        <span className="clear-icon" onClick={() => setSearchQuery("")}onDoubleClick={() => setSearchOpen(false)}>❌</span>
       </div>
 
       <aside className={`sidebar ${sidebarOpen ? "expanded" : ""}`}>
@@ -84,8 +84,7 @@ const handleDeleteEntry = (index) => {
           <div className="sidebar-content">
             <h2>Dashboard</h2>
             <ul>
-              <li>🏠 Home</li>
-              <li>📜 View Entries</li>
+              <li>🔒 Privacy Settings</li>
               <li className="dark-mode-toggle">
                 🌙 Dark Mode 
                 <label className="switch">
@@ -93,7 +92,9 @@ const handleDeleteEntry = (index) => {
                   <span className="slider"></span>
                 </label>
               </li>
+              <li>📜 Terms & Policy </li>
               <li onClick={handleLogoutClick}>🚪 Logout</li>
+              
             </ul>
           </div>
         )}

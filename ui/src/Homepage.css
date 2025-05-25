@@ -71,7 +71,7 @@ body {
 }
 
 .sidebar li {
-  padding: 12px;
+  padding: 10px;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -286,10 +286,23 @@ input:checked + .slider::before {
   display: flex;
   align-items: center;
 }
+/* clear text in search container*/
+.clear-icon {
+  font-size: 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: background-color 0.3s;
+}
+
+.clear-icon:hover {
+  background-color: #fffafa32;
+}
 
 .search-icon {
   font-size: 22px;
-  z-index: 999;
   cursor: pointer;
   padding: 5px;
   background-color: white;
@@ -305,7 +318,6 @@ input:checked + .slider::before {
   width: 180px;
   z-index: 999;
   font-size: 14px;
-  transition: 0.3s ease-in-out;
 }
 
 /* Highlights matching search text */
