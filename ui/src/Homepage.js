@@ -63,17 +63,16 @@ const handleDeleteEntry = (index) => {
     <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
       
       {/* 🔍 Search Bar */}
-      <div className="search-container">
-        <span className="search-icon" onClick={() => setSearchOpen(!searchOpen)}>🔍</span>
-        {searchOpen && (
-          <input 
-            type="text" 
-            className="search-input"
-            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by date or keyword" 
-          />
-        )}
-        <span className="clear-icon" onClick={() => setSearchQuery("")}onDoubleClick={() => setSearchOpen(false)}>❌</span>
+      <div className={`search-container ${searchOpen ? "open" : ""}`}>
+        <span className="search-icon" onClick={() => setSearchOpen(!searchOpen)} title="Search" >🔍</span>
+         <input
+          type="text"
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search journal..."
+          style={{ width: searchOpen ? "200px" : "0px" }}
+        />
       </div>
 
       <aside className={`sidebar ${sidebarOpen ? "expanded" : ""}`}>
@@ -125,7 +124,7 @@ const handleDeleteEntry = (index) => {
     ))}
   </ul>
 ) : (
-  <p>No entries </p>
+  <p>No entries... </p>
 )}
 
         </div>

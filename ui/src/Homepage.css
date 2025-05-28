@@ -20,7 +20,7 @@ body {
 
 .sidebar {
   width: 60px;                           /* Sidebar Dashboard */
-  background: #ffdaf8;
+  background: #ffdcc9e8;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -45,7 +45,7 @@ body {
 }
 
 .toggle-btn:hover {
-  background: #effdfc;
+  background: linear-gradient(45deg,#dbc0ff,#ffc2cc);
 }
 
 .sidebar-content {
@@ -73,7 +73,7 @@ body {
 }
 
 .sidebar li:hover {
-  background: #e7fffe;
+  background: linear-gradient(45deg,#dbc0ff,#ffc2cc);
 }
 /* Journal Area */
 .homepage-content {
@@ -87,7 +87,7 @@ body {
   padding: 2rem;
   border-radius: 0%;
   box-sizing: border-box;
-  background-color: #b1d0ff;
+  background:linear-gradient(45deg,#94d4fc,#b8ffd2,#ffaec5);
   font-family: 'Comic Neue', cursive, sans-serif;
   position: relative;
   overflow: hidden;
@@ -132,6 +132,7 @@ body {
 
 .entry-box button:hover {
  background-color: #ff5e8e;
+ background: linear-gradient(45deg,#c89dff,#ff94a6);
 }
 
 /* Entries Section */
@@ -196,11 +197,18 @@ li {
 
 p{
   text-align: center;
+  color: #000000;
 }
 
 li:hover {
   transform: scale(1.01);
   background-color: #fff7fb;
+}
+li button{
+  color:#dbc0ff ;
+}
+li button:hover{
+  background: linear-gradient(45deg,#bf8fff,#ff8b9f);
 }
 
 /* 🔹 Logout Confirmation Modal */
@@ -322,34 +330,44 @@ input:checked + .slider::before {
 }
 /* 🔍 Search Container */
 .search-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transition: all 0.3s ease;
+  direction:ltr;
 }
-
 .search-icon {
-  position: fixed;
-  top: 1.3rem;
-  right: 0.8rem;
-  z-index: 1000;
-  font-size: 22px;
   cursor: pointer;
-  padding: 5px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2 ;
+  font-size: 1.4rem;
+  margin-right: 10px;
+  user-select: none;
+  transition: transform 0.2s ease;
 }
-
+.search-icon:hover {
+  transform: scale(1.1);
+}
 .search-input {
-  padding: 8px;
-  margin-left: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 300px;
-  z-index: 999;
-  font-size: 14px;
+  border: none;
+  outline: none;
+  background-color: #f1f1f1;
+  padding: 6px 10px;
+  font-size: 0.90rem;
+  font-family: 'Comic Neue', cursive, sans-serif;
+  border-radius: 6px;
+  max-width: 80vw;
+  position: absolute;
+  right: 40px;
+  opacity: 0;
+  z-index: 1 ;
+  transition: width 0.4s ease, opacity 0.3s ease;
+}
+.search-container.open .search-input {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 

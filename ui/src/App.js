@@ -41,6 +41,7 @@ const AuthPage = () => {
           <label>Email:</label>
           <input
             type="email"
+            placeholder="projec18@gmail.com...."
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
