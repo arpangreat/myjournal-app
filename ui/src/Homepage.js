@@ -124,7 +124,7 @@ const handleDeleteEntry = (index) => {
     ))}
   </ul>
 ) : (
-  <p>No entries... </p>
+  <p>No entries.... </p>
 )}
 
         </div>
