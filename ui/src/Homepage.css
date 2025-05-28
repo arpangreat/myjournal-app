@@ -45,7 +45,7 @@ body {
 }
 
 .toggle-btn:hover {
-  background: linear-gradient(45deg,#dbc0ff,#ffc2cc);
+  background: linear-gradient(45deg,#cea8ff,#ffb7c1);
 }
 
 .sidebar-content {
@@ -73,7 +73,7 @@ body {
 }
 
 .sidebar li:hover {
-  background: linear-gradient(45deg,#dbc0ff,#ffc2cc);
+  background: linear-gradient(45deg,#cea8ff,#ffb7c1);
 }
 /* Journal Area */
 .homepage-content {
@@ -120,7 +120,7 @@ body {
 
 .entry-box button {
   align-self: center;
-  background-color: #ff85a2;
+  background: linear-gradient(45deg,#c89dff,#ff94a6);
   color: white;
   padding: 10px 20px;
   border: none;
@@ -132,7 +132,7 @@ body {
 
 .entry-box button:hover {
  background-color: #ff5e8e;
- background: linear-gradient(45deg,#c89dff,#ff94a6);
+ background: linear-gradient(45deg,#a45fff,#ff5e79);
 }
 
 /* Entries Section */
@@ -208,7 +208,7 @@ li button{
   color:#dbc0ff ;
 }
 li button:hover{
-  background: linear-gradient(45deg,#bf8fff,#ff8b9f);
+  background: linear-gradient(45deg,#a45fff,#ff5e79);
 }
 
 /* 🔹 Logout Confirmation Modal */
@@ -239,13 +239,19 @@ li button:hover{
   border-radius: 100px;
 }
 .yes-btn {
-  background: red;
+  background: linear-gradient(45deg,#bf8fff,#ff8b9f);
   color: white;
+}
+.yes-btn:hover{
+  background: linear-gradient(45deg,#a45fff,#ff5e79);
 }
 
 .no-btn {
-  background: green;
+  background: linear-gradient(45deg,#bf8fff,#ff8b9f);
   color: white;
+}
+.no-btn:hover{
+  background: linear-gradient(45deg,#a45fff,#ff5e79);
 }
 
 /* Toggle Dark Mode */
