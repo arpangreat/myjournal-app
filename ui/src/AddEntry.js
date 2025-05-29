@@ -45,9 +45,9 @@ const AddEntry = ({ onAddEntry }) => {
         const savedEntry = await response.json();
 
         // Call the parent component's callback if provided
-        if (onAddEntry) {
-          onAddEntry(savedEntry);
-        }
+        // if (onAddEntry) {
+        //   onAddEntry(savedEntry);
+        // }
 
         // Clear the form
         setTitle("");
