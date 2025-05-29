@@ -14,38 +14,36 @@ const Homepage = () => {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   const handleAddEntry = () => {
-  if (newEntry.trim() !== "") {
-    const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
-    setEntries([{ date: currentDate, text: newEntry }, ...entries]); // Prepend new entry to the list
-    setNewEntry(""); // Clear input after saving
-  }
-};
+    if (newEntry.trim() !== "") {
+      const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
+      setEntries([{ date: currentDate, text: newEntry }, ...entries]); // Prepend new entry to the list
+      setNewEntry(""); // Clear input after saving
+    }
+  };
 
-// Entry management functions for editing and deleting journal entries
+  // Entry management functions for editing and deleting journal entries
 
-const handleEditEntry = (index) => {
-  // Prompt user to edit the selected entry
-  const updatedText = prompt("Edit your entry:", entries[index].text);
-  
-  // If the user provides a valid input, update the entry
-  if (updatedText !== null) {
-    const updatedEntries = [...entries]; // Copy existing entries
-    updatedEntries[index].text = updatedText; // Modify the selected entry
-    setEntries(updatedEntries); // Update the state with edited entries
-  }
-};
+  const handleEditEntry = (index) => {
+    // Prompt user to edit the selected entry
+    const updatedText = prompt("Edit your entry:", entries[index].text);
 
-const handleDeleteEntry = (index) => {
-  // Ask for confirmation before deleting an entry
-  const confirmDelete = window.confirm("Are you sure?");
-  
-  // If confirmed, remove the entry from the list
-  if (confirmDelete) {
-    setEntries(entries.filter((_, i) => i !== index)); // Keep only the entries that don't match the index
-  }
-};
+    // If the user provides a valid input, update the entry
+    if (updatedText !== null) {
+      const updatedEntries = [...entries]; // Copy existing entries
+      updatedEntries[index].text = updatedText; // Modify the selected entry
+      setEntries(updatedEntries); // Update the state with edited entries
+    }
+  };
 
+  const handleDeleteEntry = (index) => {
+    // Ask for confirmation before deleting an entry
+    const confirmDelete = window.confirm("Are you sure?");
 
+    // If confirmed, remove the entry from the list
+    if (confirmDelete) {
+      setEntries(entries.filter((_, i) => i !== index)); // Keep only the entries that don't match the index
+    }
+  };
 
   const handleLogoutClick = () => setLogoutConfirm(true);
   const handleCancelLogout = () => setLogoutConfirm(false);
@@ -55,25 +53,41 @@ const handleDeleteEntry = (index) => {
   };
 
   // Filters entries based on search query (matching date or text)
-  const filteredEntries = entries.filter(entry =>
-    entry.text.toLowerCase().includes(searchQuery.toLowerCase()) || entry.date.includes(searchQuery)
+  const filteredEntries = entries.filter((entry) =>
+    entry.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.date.includes(searchQuery)
   );
 
   return (
     <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-      
-      {/* 🔍 Search Bar */}
-      <div className="search-container">
-        <span className="search-icon" onClick={() => setSearchOpen(!searchOpen)}>🔍</span>
-        {searchOpen && (
-          <input 
-            type="text" 
+      <div className={`search-container ${searchOpen ? "open" : ""}`}>
+        <div className="search-input-wrapper">
+          <input
+            type="text"
             className="search-input"
-            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by date or keyword" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search journal..."
           />
-        )}
-        <span className="clear-icon" onClick={() => setSearchQuery("")}onDoubleClick={() => setSearchOpen(false)}>❌</span>
+          {/* Clear button - only show when there's text and search is open */}
+          {searchQuery && searchOpen && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="search-clear-btn"
+              title="Clear search"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <button
+          className="search-icon"
+          onClick={() => setSearchOpen(!searchOpen)}
+          title={searchOpen ? "Close search" : "Open search"}
+        >
+          🔍
+        </button>
       </div>
 
       <aside className={`sidebar ${sidebarOpen ? "expanded" : ""}`}>
@@ -86,15 +100,18 @@ const handleDeleteEntry = (index) => {
             <ul>
               <li>🔒 Privacy Settings</li>
               <li className="dark-mode-toggle">
-                🌙 Dark Mode 
+                🌙 Dark Mode
                 <label className="switch">
-                  <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
+                  <input
+                    type="checkbox"
+                    checked={isDarkMode}
+                    onChange={toggleDarkMode}
+                  />
                   <span className="slider"></span>
                 </label>
               </li>
-              <li>📜 Terms & Policy </li>
+              <li>📜 Terms & Policy</li>
               <li onClick={handleLogoutClick}>🚪 Logout</li>
-              
             </ul>
           </div>
         )}
@@ -112,22 +129,23 @@ const handleDeleteEntry = (index) => {
         </div>
         <div className="entries">
           <h3>Your Journal Entries</h3>
-          {filteredEntries.length > 0 ? (
-  <ul>
-    {filteredEntries.map((entry, index) => (
-      <li key={index}>
-        <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
-        <div className="entry-actions">
-          <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
-          <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
-        </div>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No matching entries found.</p>
-)}
-
+          <main>
+            {filteredEntries.length > 0 ? (
+              <ul>
+                {filteredEntries.map((entry, index) => (
+                  <li key={index}>
+                    <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
+                    <div className="entry-actions">
+                      <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
+                      <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No entries.... </p>
+            )}
+          </main>
         </div>
       </main>
 
