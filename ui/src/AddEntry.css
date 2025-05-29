@@ -1,58 +1,56 @@
-.add-entry-container {
-  max-width: 700px;
+.add-entry-page {
+  max-width: 500px;
   margin: 40px auto;
   padding: 30px;
-  border-radius: 12px;
-  background-color: #fdfdfd;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-.add-entry-container h2 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  text-align: center;
+  background-color: #fff7fb;
+  border: 2px dashed #e48ec9;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Comic Neue', cursive, sans-serif;
+  text-align: center;
 }
 
-.entry-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.add-entry-page h2 {
+  margin-bottom: 20px;
+  color: #d63384;
 }
 
 .entry-title,
-.entry-content {
-  font-family: 'Comic Neue', cursive, sans-serif;
+.entry-text {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px 14px;
+  border: 2px solid #f5b3da;
+  border-radius: 10px;
   font-size: 1rem;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  resize: none;
-  transition: border-color 0.3s ease;
+  font-family: 'Comic Neue', cursive;
+  background-color: #fff0f6;
+  transition: border 0.3s ease;
 }
 
 .entry-title:focus,
-.entry-content:focus {
-  border-color: #007acc;
+.entry-text:focus {
+  border-color: #ff61a6;
   outline: none;
 }
 
-.entry-content {
-  min-height: 150px;
+.entry-text {
+  height: 120px;
+  resize: vertical;
 }
 
-.submit-button {
-  align-self: flex-end;
-  padding: 10px 20px;
-  background-color: #007acc;
+.submit-entry-btn {
+  background-color: #ff69b4;
   color: white;
   border: none;
-  border-radius: 8px;
+  padding: 10px 22px;
   font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
+  margin-top: 12px;
   transition: background-color 0.3s ease;
 }
 
-.submit-button:hover {
-  background-color: #005fa3;
+.submit-entry-btn:hover {
+  background-color: #e0559e;
 }

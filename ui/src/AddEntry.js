@@ -1,42 +1,45 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AddEntry.css";
 
 const AddEntry = ({ onAddEntry }) => {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [text, setText] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (title.trim() && content.trim()) {
-      onAddEntry({
+  const handleSubmit = () => {
+    if (title.trim() && text.trim()) {
+      const newEntry = {
+        date: new Date().toLocaleDateString(),
         title,
-        content,
-        date: new Date().toLocaleString(),
-      });
-      setTitle("");
-      setContent("");
+        text,
+      };
+      if (onAddEntry) onAddEntry(newEntry);
+      navigate("/"); // navigate back to homepage
+    } else {
+      alert("Please fill in both fields");
     }
   };
 
   return (
-    <div className="add-entry-container">
-      <h2>Add New Journal Entry</h2>
-      <form className="entry-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="entry-title"
-          placeholder="Entry Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          className="entry-content"
-          placeholder="Write your thoughts..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button type="submit" className="submit-button">Add Entry</button>
-      </form>
+    <div className="add-entry-page">
+      <h2>📝 New Journal Entry</h2>
+      <input
+        type="text"
+        placeholder="Entry Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="entry-title"
+      />
+      <textarea
+        placeholder="What's on your mind?"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className="entry-text"
+      />
+      <button onClick={handleSubmit} className="submit-entry-btn">
+        ➕ Add Entry
+      </button>
     </div>
   );
 };

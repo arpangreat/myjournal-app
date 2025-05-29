@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link, Route, Routes,useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Route, Routes,useNavigate } from "react-router-dom";
 import AddEntry from "./AddEntry";
 import "./Homepage.css";
 
@@ -11,7 +12,7 @@ const Home = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate("/AddEntry");
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
@@ -165,7 +166,7 @@ const Home = () => {
 const Homepage = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home/>} />
       <Route path="/AddEntry" element={<AddEntry />} />
     </Routes>
   );
