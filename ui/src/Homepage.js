@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Route, Routes,useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import AddEntry from "./AddEntry";
 import "./Homepage.css";
 
-const Home = () => {
+const Home = ({ entries, onAddEntry, onUpdateEntry, onDeleteEntry }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [entries, setEntries] = useState([]); // Empty array, users will add entries
   const [newEntry, setNewEntry] = useState("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -17,35 +16,28 @@ const Home = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  /*const handleAddEntry = () => {
-    if (newEntry.trim() !== "") {
-      const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
-      setEntries([{ date: currentDate, text: newEntry }, ...entries]); // Prepend new entry to the list
-      setNewEntry(""); // Clear input after saving
-    }
-  };*/
-
   // Entry management functions for editing and deleting journal entries
-
   const handleEditEntry = (index) => {
     // Prompt user to edit the selected entry
     const updatedText = prompt("Edit your entry:", entries[index].text);
-
+    const updatedTitle = prompt("Edit your title:", entries[index].title);
     // If the user provides a valid input, update the entry
-    if (updatedText !== null) {
-      const updatedEntries = [...entries]; // Copy existing entries
-      updatedEntries[index].text = updatedText; // Modify the selected entry
-      setEntries(updatedEntries); // Update the state with edited entries
+    if (updatedText !== null && updatedTitle !== null) {
+      const updatedEntry = {
+        ...entries[index],
+        text: updatedText,
+        title: updatedTitle,
+      };
+      onUpdateEntry(index, updatedEntry);
     }
   };
 
   const handleDeleteEntry = (index) => {
     // Ask for confirmation before deleting an entry
     const confirmDelete = window.confirm("Are you sure?");
-
     // If confirmed, remove the entry from the list
     if (confirmDelete) {
-      setEntries(entries.filter((_, i) => i !== index)); // Keep only the entries that don't match the index
+      onDeleteEntry(index);
     }
   };
 
@@ -124,30 +116,44 @@ const Home = () => {
       <main className="homepage-content">
         <h2>Welcome to My Journal</h2>
         <div className="entry-box">
-        <Link to="/AddEntry">
-          <button>Add Entry </button>
-        </Link>
-          
+          <Link to="/AddEntry">
+            <button>Add Entry</button>
+          </Link>
         </div>
         <div className="entries">
           <h3>Your Journal Entries</h3>
-          <main>
-            {filteredEntries.length > 0 ? (
+          {filteredEntries.length > 0
+            ? (
               <ul>
                 {filteredEntries.map((entry, index) => (
                   <li key={index}>
-                    <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
+                    <strong>{entry.date}:</strong>
+                    <br />
+                    <strong>{entry.title}</strong>
+                    <br />
+                    {entry.text.replace(
+                      new RegExp(`(${searchQuery})`, "gi"),
+                      "$1",
+                    )}
                     <div className="entry-actions">
-                      <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
-                      <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEditEntry(index)}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteEntry(index)}
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p>No entries.... </p>
-            )}
-          </main>
+            )
+            : <p>No entries....</p>}
         </div>
       </main>
 
@@ -155,20 +161,27 @@ const Home = () => {
         <div className="logout-modal">
           <h3>Logout!</h3>
           <h3>Are you sure?</h3>
-          <button className="yes-btn" onClick={handleConfirmLogout}>Yes</button>
-          <button className="no-btn" onClick={handleCancelLogout}>No</button>
+          <button className="yes-btn" onClick={handleConfirmLogout}>
+            Yes
+          </button>
+          <button className="no-btn" onClick={handleCancelLogout}>
+            No
+          </button>
         </div>
       )}
     </div>
   );
 };
 
-const Homepage = () => {
+const Homepage = ({ entries, onAddEntry, onUpdateEntry, onDeleteEntry }) => {
+  // Remove the local state and nested Routes since we're handling this in App.js now
   return (
-    <Routes>
-      <Route path="/" element={<Home/>} />
-      <Route path="/AddEntry" element={<AddEntry />} />
-    </Routes>
+    <Home
+      entries={entries}
+      onAddEntry={onAddEntry}
+      onUpdateEntry={onUpdateEntry}
+      onDeleteEntry={onDeleteEntry}
+    />
   );
 };
 

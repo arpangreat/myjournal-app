@@ -15,7 +15,7 @@ const AddEntry = ({ onAddEntry }) => {
         text,
       };
       if (onAddEntry) onAddEntry(newEntry);
-      navigate("/"); // navigate back to homepage
+      navigate("/Homepage"); // navigate back to homepage
     } else {
       alert("Please fill in both fields");
     }
@@ -45,3 +45,4 @@ const AddEntry = ({ onAddEntry }) => {
 };
 
 export default AddEntry;
+

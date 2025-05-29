@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import Homepage from "./Homepage";
 import "./App.css";
+import AddEntry from "./AddEntry";
 
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -70,10 +71,42 @@ const AuthPage = () => {
 };
 
 const App = () => {
+  // Move entries state to the main App component so it persists across all routes
+  const [entries, setEntries] = useState([]);
+
+  const handleAddEntry = (newEntry) => {
+    console.log("Adding new entry:", newEntry);
+    setEntries((prevEntries) => [newEntry, ...prevEntries]);
+  };
+
+  const handleUpdateEntry = (index, updatedEntry) => {
+    const updatedEntries = [...entries];
+    updatedEntries[index] = updatedEntry;
+    setEntries(updatedEntries);
+  };
+
+  const handleDeleteEntry = (index) => {
+    setEntries(entries.filter((_, i) => i !== index));
+  };
+
   return (
     <Routes>
       <Route path="/" element={<AuthPage />} />
-      <Route path="/Homepage" element={<Homepage />} />
+      <Route
+        path="/Homepage"
+        element={
+          <Homepage
+            entries={entries}
+            onAddEntry={handleAddEntry}
+            onUpdateEntry={handleUpdateEntry}
+            onDeleteEntry={handleDeleteEntry}
+          />
+        }
+      />
+      <Route
+        path="/AddEntry"
+        element={<AddEntry onAddEntry={handleAddEntry} />}
+      />
     </Routes>
   );
 };
