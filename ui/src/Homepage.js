@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { Link, Route, Routes,useNavigate } from "react-router-dom";
+import AddEntry from "./AddEntry";
 import "./Homepage.css";
 
-const Homepage = () => {
+const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [entries, setEntries] = useState([]); // Empty array, users will add entries
   const [newEntry, setNewEntry] = useState("");
@@ -9,17 +11,18 @@ const Homepage = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate("/AddEntry");
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  const handleAddEntry = () => {
+  /*const handleAddEntry = () => {
     if (newEntry.trim() !== "") {
       const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
       setEntries([{ date: currentDate, text: newEntry }, ...entries]); // Prepend new entry to the list
       setNewEntry(""); // Clear input after saving
     }
-  };
+  };*/
 
   // Entry management functions for editing and deleting journal entries
 
@@ -120,12 +123,10 @@ const Homepage = () => {
       <main className="homepage-content">
         <h2>Welcome to My Journal</h2>
         <div className="entry-box">
-          <textarea
-            placeholder="Write your thoughts ..."
-            value={newEntry}
-            onChange={(e) => setNewEntry(e.target.value)}
-          />
-          <button onClick={handleAddEntry}>Add Entry</button>
+        <Link to="/AddEntry">
+          <button>Add Entry </button>
+        </Link>
+          
         </div>
         <div className="entries">
           <h3>Your Journal Entries</h3>
@@ -158,6 +159,15 @@ const Homepage = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const Homepage = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/AddEntry" element={<AddEntry />} />
+    </Routes>
   );
 };
 
