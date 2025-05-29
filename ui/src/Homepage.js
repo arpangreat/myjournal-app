@@ -129,54 +129,23 @@ const Homepage = () => {
         </div>
         <div className="entries">
           <h3>Your Journal Entries</h3>
-< main
-          {filteredEntries.length > 0
-            ? (
+          <main>
+            {filteredEntries.length > 0 ? (
               <ul>
                 {filteredEntries.map((entry, index) => (
                   <li key={index}>
-                    <strong>{entry.date}:</strong>
-                    <br /> {entry.text.replace(
-                      new RegExp(`(${searchQuery})`, "gi"),
-                      "$1",
-                    )}
+                    <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
                     <div className="entry-actions">
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEditEntry(index)}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDeleteEntry(index)}
-                      >
-                        🗑️
-                      </button>
+                      <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
+                      <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
                     </div>
                   </li>
                 ))}
               </ul>
-            )
-            : <p>No entries...</p>}
-=======
-          {filteredEntries.length > 0 ? (
-  <ul>
-    {filteredEntries.map((entry, index) => (
-      <li key={index}>
-        <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
-        <div className="entry-actions">
-          <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
-          <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
-        </div>
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>No entries.... </p>
-)}
-
-> main
+            ) : (
+              <p>No entries.... </p>
+            )}
+          </main>
         </div>
       </main>
 
