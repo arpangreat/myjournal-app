@@ -1,27 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { BrowserRouter } from "react-router-dom";
 import Homepage from "./Homepage";
 import "./App.css";
 import AddEntry from "./AddEntry";
+import { authAPI, entriesAPI, handleAPIError } from "./api";
 
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (isSignup) {
-      console.log("Signing up with:", name, email, password);
-      // Add signup logic here (e.g., API call to create an account)
-    } else {
-      console.log("Logging in with:", email, password);
-      // Add login logic here (e.g., authentication API call)
+    setLoading(true);
+    try {
+      if (isSignup) {
+        console.log("Signing up with:", name, email, password);
+        await authAPI.signup(name, email, password);
+      } else {
+        await authAPI.login(email, password);
+      }
+      navigate("/Homepage");
+    } catch (error) {
+      alert(handleAPIError(error));
+    } finally {
+      setLoading(false);
     }
-    navigate("/Homepage"); // Redirect after login or signup
   };
 
   return (
@@ -36,6 +43,7 @@ const AuthPage = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
         )}
@@ -47,6 +55,7 @@ const AuthPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
         <div>
@@ -56,13 +65,20 @@ const AuthPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-        <button type="submit">{isSignup ? "Sign Up" : "Login"}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Loading..." : (isSignup ? "Sign Up" : "Login")}
+        </button>
       </form>
       <p>
         {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-        <button onClick={() => setIsSignup(!isSignup)}>
+        <button
+          onClick={() => setIsSignup(!isSignup)}
+          disabled={loading}
+          type="button"
+        >
           {isSignup ? "Login" : "Sign Up"}
         </button>
       </p>
@@ -70,28 +86,80 @@ const AuthPage = () => {
   );
 };
 
-const App = () => {
-  // Move entries state to the main App component so it persists across all routes
+const AppContent = () => {
   const [entries, setEntries] = useState([]);
 
-  const handleAddEntry = (newEntry) => {
-    console.log("Adding new entry:", newEntry);
-    setEntries((prevEntries) => [newEntry, ...prevEntries]);
+  const handleEntriesLoad = (loadedEntries) => {
+    setEntries(loadedEntries);
   };
 
-  const handleUpdateEntry = (index, updatedEntry) => {
-    const updatedEntries = [...entries];
-    updatedEntries[index] = updatedEntry;
-    setEntries(updatedEntries);
+  const handleAddEntry = async (newEntry) => {
+    try {
+      // If API is available, create entry via API
+      if (typeof entriesAPI !== "undefined") {
+        const createdEntry = await entriesAPI.createEntry(
+          newEntry.title,
+          newEntry.text,
+          newEntry.date,
+        );
+        console.log("Entry created:", createdEntry);
+        // Don't manually update state here - let the Homepage component reload entries
+        // This prevents duplicates
+        return createdEntry;
+      } else {
+        // Fallback to local state if API not available
+        console.log("Adding new entry:", newEntry);
+        setEntries((prevEntries) => [newEntry, ...prevEntries]);
+        return newEntry;
+      }
+    } catch (error) {
+      console.error("Error adding entry:", error);
+      alert(handleAPIError(error));
+      throw error;
+    }
   };
 
-  const handleDeleteEntry = (index) => {
-    setEntries(entries.filter((_, i) => i !== index));
+  const handleUpdateEntry = async (index, updatedEntry) => {
+    try {
+      if (typeof entriesAPI !== "undefined") {
+        const entryToUpdate = entries[index];
+        const updatedFromAPI = await entriesAPI.updateEntry(
+          entryToUpdate.id,
+          updatedEntry.title,
+          updatedEntry.text,
+        );
+        // Don't manually update state - let Homepage component reload entries
+        return updatedFromAPI;
+      } else {
+        // Fallback to local state
+        const updatedEntries = [...entries];
+        updatedEntries[index] = updatedEntry;
+        setEntries(updatedEntries);
+      }
+    } catch (error) {
+      alert(handleAPIError(error));
+    }
+  };
+
+  const handleDeleteEntry = async (index) => {
+    try {
+      if (typeof entriesAPI !== "undefined") {
+        const entryToDelete = entries[index];
+        await entriesAPI.deleteEntry(entryToDelete.id);
+        // Don't manually update state - let Homepage component reload entries
+      } else {
+        // Fallback to local state
+        setEntries(entries.filter((_, i) => i !== index));
+      }
+    } catch (error) {
+      alert(handleAPIError(error));
+    }
   };
 
   return (
     <Routes>
       <Route path="/" element={<AuthPage />} />
+      <Route path="/login" element={<AuthPage />} />
       <Route
         path="/Homepage"
         element={
@@ -100,6 +168,7 @@ const App = () => {
             onAddEntry={handleAddEntry}
             onUpdateEntry={handleUpdateEntry}
             onDeleteEntry={handleDeleteEntry}
+            onEntriesLoad={handleEntriesLoad}
           />
         }
       />
@@ -109,6 +178,10 @@ const App = () => {
       />
     </Routes>
   );
+};
+
+const App = () => {
+  return <AppContent />;
 };
 
 export default App;
