@@ -1,0 +1,56 @@
+.add-entry-page {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #fff7fb;
+  border: 2px dashed #e48ec9;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Comic Neue', cursive, sans-serif;
+  text-align: center;
+}
+
+.add-entry-page h2 {
+  margin-bottom: 20px;
+  color: #d63384;
+}
+
+.entry-title,
+.entry-text {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px 14px;
+  border: 2px solid #f5b3da;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Comic Neue', cursive;
+  background-color: #fff0f6;
+  transition: border 0.3s ease;
+}
+
+.entry-title:focus,
+.entry-text:focus {
+  border-color: #ff61a6;
+  outline: none;
+}
+
+.entry-text {
+  height: 120px;
+  resize: vertical;
+}
+
+.submit-entry-btn {
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-entry-btn:hover {
+  background-color: #e0559e;
+}

@@ -74,6 +74,7 @@ body {
   list-style: none;
   padding: 0;
 }
+
 /* privacy logout terms options*/
 .sidebar li {
   padding: 10px;
@@ -269,6 +270,10 @@ li button:hover {
   border-radius: 100px;
 }
 
+.welcome-text {
+  color: black;
+}
+
 .yes-btn {
   background: linear-gradient(45deg, #bf8fff, #ff8b9f);
   color: white;
@@ -435,7 +440,7 @@ input:checked+.slider::before {
 
 .search-icon {
   padding: 1px;
-  border-radius:0%;
+  border-radius: 0%;
   border: none;
   background: none;
   margin-right: 25px;
@@ -481,4 +486,8 @@ input:checked+.slider::before {
 .dark-mode .search-icon:hover {
   color: #d1d5db;
   background: none;
+}
+
+.dark-mode .welcome-text {
+  color: white;
 }

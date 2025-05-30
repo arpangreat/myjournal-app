@@ -1,62 +1,214 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Homepage.css";
 
-const Homepage = () => {
+const Home = (
+  { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
+) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [entries, setEntries] = useState([]); // Empty array, users will add entries
-  const [newEntry, setNewEntry] = useState("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  // Load user info and entries on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+
+    loadEntries();
+  }, [navigate]);
+
+  const loadEntries = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/entries", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const entriesData = await response.json();
+        if (onEntriesLoad) {
+          onEntriesLoad(entriesData || []);
+        }
+      } else if (response.status === 401) {
+        // Token expired
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      } else {
+        console.error("Failed to load entries");
+      }
+    } catch (error) {
+      console.error("Error loading entries:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  const handleAddEntry = () => {
-    if (newEntry.trim() !== "") {
-      const currentDate = new Date().toISOString().split("T")[0]; // Get today's date
-      setEntries([{ date: currentDate, text: newEntry }, ...entries]); // Prepend new entry to the list
-      setNewEntry(""); // Clear input after saving
-    }
-  };
-
   // Entry management functions for editing and deleting journal entries
+  const handleEditEntry = async (index) => {
+    const entry = filteredEntries[index]; // Use filteredEntries instead of entries
 
-  const handleEditEntry = (index) => {
     // Prompt user to edit the selected entry
-    const updatedText = prompt("Edit your entry:", entries[index].text);
+    const updatedTitle = prompt("Edit your title:", entry.title);
+    if (updatedTitle === null) return; // User cancelled
 
-    // If the user provides a valid input, update the entry
-    if (updatedText !== null) {
-      const updatedEntries = [...entries]; // Copy existing entries
-      updatedEntries[index].text = updatedText; // Modify the selected entry
-      setEntries(updatedEntries); // Update the state with edited entries
+    const updatedText = prompt("Edit your entry:", entry.text);
+    if (updatedText === null) return; // User cancelled
+
+    if (updatedTitle.trim() === "" || updatedText.trim() === "") {
+      alert("Title and text cannot be empty");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/entries/${entry.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: updatedTitle.trim(),
+            text: updatedText.trim(),
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const updatedEntry = await response.json();
+        // Reload entries from server to ensure consistency
+        await loadEntries();
+      } else if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      } else {
+        alert("Failed to update entry");
+      }
+    } catch (error) {
+      console.error("Error updating entry:", error);
+      alert("Failed to update entry. Please try again.");
     }
   };
 
-  const handleDeleteEntry = (index) => {
-    // Ask for confirmation before deleting an entry
-    const confirmDelete = window.confirm("Are you sure?");
+  const handleDeleteEntry = async (index) => {
+    const entry = filteredEntries[index]; // Use filteredEntries instead of entries
 
-    // If confirmed, remove the entry from the list
-    if (confirmDelete) {
-      setEntries(entries.filter((_, i) => i !== index)); // Keep only the entries that don't match the index
+    // Ask for confirmation before deleting an entry
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${entry.title}"?`,
+    );
+
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/entries/${entry.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        // Reload entries from server to ensure consistency
+        await loadEntries();
+      } else if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      } else {
+        alert("Failed to delete entry");
+      }
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+      alert("Failed to delete entry. Please try again.");
     }
   };
 
   const handleLogoutClick = () => setLogoutConfirm(true);
   const handleCancelLogout = () => setLogoutConfirm(false);
+
   const handleConfirmLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     alert("Logged Out Successfully!");
     setLogoutConfirm(false);
+    navigate("/login");
   };
 
-  // Filters entries based on search query (matching date or text)
-  const filteredEntries = entries.filter((entry) =>
+  // Ensure entries is always an array and remove duplicates based on ID
+  const uniqueEntries = React.useMemo(() => {
+    if (!Array.isArray(entries)) return [];
+
+    // Remove duplicates based on entry ID
+    const seen = new Set();
+    return entries.filter((entry) => {
+      if (seen.has(entry.id)) {
+        return false;
+      }
+      seen.add(entry.id);
+      return true;
+    });
+  }, [entries]);
+
+  // Filters entries based on search query (matching date, title, or text)
+  const filteredEntries = uniqueEntries.filter((entry) =>
     entry.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     entry.date.includes(searchQuery)
   );
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <h2>Loading your journal...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
@@ -97,6 +249,7 @@ const Homepage = () => {
         {sidebarOpen && (
           <div className="sidebar-content">
             <h2>Dashboard</h2>
+            {user && <p className="user-greeting">Hello, {user.name}! 👋</p>}
             <ul>
               <li>🔒 Privacy Settings</li>
               <li className="dark-mode-toggle">
@@ -111,7 +264,9 @@ const Homepage = () => {
                 </label>
               </li>
               <li>📜 Terms & Policy</li>
-              <li onClick={handleLogoutClick}>🚪 Logout</li>
+              <li onClick={handleLogoutClick} style={{ cursor: "pointer" }}>
+                🚪 Logout
+              </li>
             </ul>
           </div>
         )}
@@ -119,45 +274,106 @@ const Homepage = () => {
 
       <main className="homepage-content">
         <h2>Welcome to My Journal</h2>
+        {user && <p className="welcome-text">Good to see you, {user.name}!</p>}
+
         <div className="entry-box">
-          <textarea
-            placeholder="Write your thoughts ..."
-            value={newEntry}
-            onChange={(e) => setNewEntry(e.target.value)}
-          />
-          <button onClick={handleAddEntry}>Add Entry</button>
+          <Link to="/AddEntry">
+            <button>Add Entry</button>
+          </Link>
         </div>
+
         <div className="entries">
-          <h3>Your Journal Entries</h3>
-          <main>
-            {filteredEntries.length > 0 ? (
-              <ul>
+          <h3>Your Journal Entries ({uniqueEntries.length})</h3>
+          {filteredEntries.length > 0
+            ? (
+              <div className="entries-list">
                 {filteredEntries.map((entry, index) => (
-                  <li key={index}>
-                    <strong>{entry.date}:</strong><br /> {entry.text.replace(new RegExp(`(${searchQuery})`, "gi"), "$1")}
-                    <div className="entry-actions">
-                      <button className="edit-btn" onClick={() => handleEditEntry(index)}>✏️</button>
-                      <button className="delete-btn" onClick={() => handleDeleteEntry(index)}>🗑️</button>
+                  <div
+                    key={entry.id || `entry-${index}`}
+                    className="entry-item"
+                  >
+                    <div className="entry-header">
+                      <span className="entry-date">{entry.date}</span>
+                      <div className="entry-actions">
+                        <button
+                          className="edit-btn"
+                          onClick={() => handleEditEntry(index)}
+                          title="Edit entry"
+                          aria-label={`Edit entry: ${entry.title}`}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDeleteEntry(index)}
+                          title="Delete entry"
+                          aria-label={`Delete entry: ${entry.title}`}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
-                  </li>
+                    <h4 className="entry-title">{entry.title}</h4>
+                    <div
+                      className="entry-text"
+                      dangerouslySetInnerHTML={{
+                        __html: searchQuery
+                          ? entry.text.replace(
+                            new RegExp(`(${searchQuery})`, "gi"),
+                            "<mark>$1</mark>",
+                          )
+                          : entry.text.replace(/\n/g, "<br>"),
+                      }}
+                    />
+                  </div>
                 ))}
-              </ul>
-            ) : (
-              <p>No entries.... </p>
+              </div>
+            )
+            : searchQuery
+            ? (
+              <div className="no-entries">
+                <p>No entries found matching "{searchQuery}"</p>
+              </div>
+            )
+            : (
+              <div className="no-entries">
+                <p>No entries yet. Create your first journal entry!</p>
+              </div>
             )}
-          </main>
         </div>
       </main>
 
       {logoutConfirm && (
         <div className="logout-modal">
-          <h3>Logout!</h3>
-          <h3>Are you sure?</h3>
-          <button className="yes-btn" onClick={handleConfirmLogout}>Yes</button>
-          <button className="no-btn" onClick={handleCancelLogout}>No</button>
+          <div className="logout-modal-content">
+            <h3>Logout Confirmation</h3>
+            <p>Are you sure you want to logout?</p>
+            <div className="logout-modal-actions">
+              <button className="yes-btn" onClick={handleConfirmLogout}>
+                Yes, Logout
+              </button>
+              <button className="no-btn" onClick={handleCancelLogout}>
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
+  );
+};
+
+const Homepage = (
+  { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
+) => {
+  return (
+    <Home
+      entries={entries}
+      onAddEntry={onAddEntry}
+      onUpdateEntry={onUpdateEntry}
+      onDeleteEntry={onDeleteEntry}
+      onEntriesLoad={onEntriesLoad}
+    />
   );
 };
 
