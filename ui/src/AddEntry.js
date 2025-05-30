@@ -78,10 +78,95 @@ const AddEntry = ({ onAddEntry }) => {
   const handleCancel = () => {
     navigate("/Homepage");
   };
+//changing for font add
+  const [selectedFont, setSelectedFont] = useState("inherit");
+  const [showFontList, setShowFontList] = useState(false);
+
+  const fonts = [
+    "Arial",
+    "Wide Latin",
+    "Vladimir Script",
+    "Showcard Gothic",
+    "Algerian",
+    "Bradley Hand ITC",
+    "Matura MT Script Capitals",
+    "Broadway",
+    "Bauhaus 93",
+    "Chiller",
+    "Calibri",
+    "Cambria",
+    "Candara",
+    "Comic Sans MS",
+    "Consolas",
+    "Constantia",
+    "Corbel",
+    "Courier New",
+    "Franklin Gothic Medium",
+    "Georgia",
+    "Helvetica",
+    "Impact",
+    "Lucida Console",
+    "Lucida Sans Unicode",
+    "Palatino Linotype",
+    "Segoe UI",
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
+    "Century Gothic",
+    "Garamond",
+    "Bookman Old Style",
+    "Book Antiqua",
+    "Elephant",
+    "Futura",
+    "Gill Sans MT",
+    "Harlow Solid Italic",
+    "Ink Free",
+    "Kristen ITC",
+    "Leelawadee UI",
+    "Magneto",
+    "MV Boli",
+    "Perpetua",
+    "Ravie",
+    "Rockwell",
+    "Showcard Gothic",
+    "Snap ITC",
+    "Stencil",
+    "Tw Cen MT"
+  ];
+
+
 
   return (
     <div className="add-entry-page">
       <h2>📝 New Journal Entry</h2>
+
+
+      <div className="font-selector">
+        <button
+          onClick={() => setShowFontList(!showFontList)}
+          className="font-toggle-btn"
+        >
+          🎨 Font Style
+        </button>
+        {showFontList && (
+          <ul className="font-list">
+            {fonts.map((font) => (
+              <li
+                key={font}
+                onClick={() => {
+                  setSelectedFont(font);
+                  setShowFontList(false);
+                }}
+                style={{ fontFamily: font }}
+              >
+                {font}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
 
       <input
         type="text"
@@ -90,6 +175,7 @@ const AddEntry = ({ onAddEntry }) => {
         onChange={(e) => setTitle(e.target.value)}
         className="entry-title"
         disabled={isSubmitting}
+        style={{ fontFamily: selectedFont }}
       />
 
       <textarea
@@ -98,6 +184,7 @@ const AddEntry = ({ onAddEntry }) => {
         onChange={(e) => setText(e.target.value)}
         className="entry-text"
         disabled={isSubmitting}
+        style={{ fontFamily: selectedFont }}
       />
 
       <div className="button-group">
