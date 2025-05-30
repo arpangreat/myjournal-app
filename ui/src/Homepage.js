@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Homepage.css";
 
+const formatDate = (dateString) => {
+  const [month, day, year] = dateString.split("/");
+  return `${day}/${month}/${year}`;
+};
+
 const Home = (
   { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
 ) => {
@@ -70,6 +75,27 @@ const Home = (
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
+  //Sidebar auto-collapse
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarOpen) {
+        const sidebar = document.querySelector(".sidebar");
+        const toggleBtn = document.querySelector(".toggle-btn");
+
+        // If clicked outside sidebar and toggle button, close the sidebar
+        if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+          setSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+  
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [sidebarOpen]);
 
   // Entry management functions for editing and deleting journal entries
   const handleEditEntry = async (index) => {
@@ -293,7 +319,10 @@ const Home = (
                     className="entry-item"
                   >
                     <div className="entry-header">
-                      <span className="entry-date">{entry.date}</span>
+                      <div className="entry-date-wrapper">
+                        <span className="entry-date">{formatDate(entry.date)}</span>
+                        <span className="entry-time">{entry.time ? entry.time : "-"}</span>
+                      </div>  
                       <div className="entry-actions">
                         <button
                           className="edit-btn"
@@ -315,14 +344,14 @@ const Home = (
                     </div>
                     <h4 className="entry-title">{entry.title}</h4>
                     <div
-                      className="entry-text"
+                      className="entry-text"                      
                       dangerouslySetInnerHTML={{
                         __html: searchQuery
-                          ? entry.text.replace(
+                          ? entry.text.split("\n")[0].replace(
                             new RegExp(`(${searchQuery})`, "gi"),
                             "<mark>$1</mark>",
                           )
-                          : entry.text.replace(/\n/g, "<br>"),
+                          : entry.text.split("\n")[0],
                       }}
                     />
                   </div>
