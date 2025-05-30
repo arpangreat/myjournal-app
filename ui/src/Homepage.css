@@ -374,6 +374,14 @@ input:checked+.slider::before {
   background: #444;
 }
 
+.dark-mode .entry-title {
+  color: black;
+}
+
+.dark-mode .entry-text {
+  color: black;
+}
+
 .search-container {
   position: absolute;
   top: 5px;
