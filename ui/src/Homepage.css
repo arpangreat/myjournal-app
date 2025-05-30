@@ -146,6 +146,9 @@ body {
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
+  /*Makes Entry-box button rectangular*/
+   width: 140px;
+   height: 40px;
 }
 
 .entry-box button:hover {
@@ -179,6 +182,35 @@ body {
 
 .entries::-webkit-scrollbar-track {
   background: #f4f4f4;
+}
+
+.entry-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px; /* Adds spacing before entry text */
+}
+
+.entry-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal; /* Ensures long paragraphs wrap properly */
+  max-width: 100%;
+}
+
+
+.entry-date-wrapper {
+  display: flex;
+  justify-content: space-between; /* Pushes time to the right */
+  align-items: center;
+  width: 100%;
+}
+
+.entry-time {
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+  margin-left: auto; /* Moves time to the right */
 }
 
 textarea {
@@ -271,7 +303,7 @@ li button:hover {
 }
 
 .welcome-text {
-  color: black;
+  color: rgb(87, 2, 2);
 }
 
 .yes-btn {
