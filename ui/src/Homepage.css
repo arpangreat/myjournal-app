@@ -124,18 +124,6 @@ body {
   margin-bottom: 45px;
 }
 
-.entry-box textarea {
-  resize: none;
-  min-height: 100px;
-  padding: 35px;
-  font-size: 16px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  background-color: #fffafc;
-  box-shadow: inset 0 2px 5px rgba(48, 34, 34, 0.05);
-  font-family: 'Comic Neue', cursive, sans-serif;
-}
-
 .entry-box button {
   align-self: center;
   background: linear-gradient(45deg, #c89dff, #ff94a6);
@@ -176,7 +164,7 @@ body {
 }
 
 .entries::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #b9b9b986;
   border-radius: 5px;
 }
 

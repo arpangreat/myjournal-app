@@ -40,7 +40,7 @@
 }
 
 .submit-entry-btn {
-  background: linear-gradient(45deg, #b5fffe, #df81b6);
+  background: linear-gradient(45deg, #64f9f6, #d568a6);
   color: rgb(255, 255, 255);
   border: none;
   box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); 
@@ -53,7 +53,7 @@
 }
 
 .submit-entry-btn:hover {
-  background: linear-gradient(45deg, #82fffd, #df81b6cf);
+  background: linear-gradient(45deg, #2cddda, #e42893f0);
 }
 
 .cancel-btn{
@@ -66,10 +66,10 @@
   cursor: pointer;
   margin-top: 12px;
   transition: background-color 0.3s ease;
-  background: linear-gradient(45deg, #b5fffe, #df81b6);
+    background: linear-gradient(45deg, #64f9f6, #d568a6);
 }
 .cancel-btn:hover{
-  background: linear-gradient(45deg, #82fffd, #df81b6cf);
+  background: linear-gradient(45deg, #2cddda, #e42893f0);
 }
 
 .font-selector {
@@ -85,11 +85,11 @@
   border-radius: 8px;
   cursor: pointer;
   margin-top: 12px;
-  background: linear-gradient(45deg, #b5fffe, #df81b6);
+  background: linear-gradient(45deg, #64f9f6, #d568a6);
 }
 
 .font-toggle-btn:hover{
-  background: linear-gradient(45deg, #82fffdd4, #df81b6cf);
+  background: linear-gradient(45deg, #2cddda, #e42893f0);
 }
 
 .font-list {
