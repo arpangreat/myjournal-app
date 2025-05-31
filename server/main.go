@@ -5,8 +5,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +26,13 @@ var db *sql.DB
 
 // JWT secret key (in production, use environment variable)
 var jwtSecret = []byte("your-secret-key-change-this-in-production")
+
+// Migration struct
+type Migration struct {
+	Version int
+	Name    string
+	SQL     string
+}
 
 // User struct
 type User struct {
@@ -65,6 +75,198 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// Database migrations
+var migrations = []Migration{
+	{
+		Version: 1,
+		Name:    "create_users_table",
+		SQL: `
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			email TEXT UNIQUE NOT NULL,
+			password TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		);`,
+	},
+	{
+		Version: 2,
+		Name:    "create_entries_table",
+		SQL: `
+		CREATE TABLE IF NOT EXISTS entries (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			title TEXT NOT NULL,
+			text TEXT NOT NULL,
+			date TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users (id)
+		);`,
+	},
+}
+
+// Create migrations table
+func createMigrationsTable() error {
+	createMigrationsSQL := `
+	CREATE TABLE IF NOT EXISTS migrations (
+		version INTEGER PRIMARY KEY,
+		name TEXT NOT NULL,
+		applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err := db.Exec(createMigrationsSQL)
+	return err
+}
+
+// Get current migration version
+func getCurrentMigrationVersion() (int, error) {
+	var version int
+	err := db.QueryRow("SELECT COALESCE(MAX(version), 0) FROM migrations").Scan(&version)
+	if err != nil {
+		return 0, err
+	}
+	return version, nil
+}
+
+// Run migrations
+func runMigrations() error {
+	// Create migrations table first
+	if err := createMigrationsTable(); err != nil {
+		return fmt.Errorf("failed to create migrations table: %v", err)
+	}
+
+	// Get current version
+	currentVersion, err := getCurrentMigrationVersion()
+	if err != nil {
+		return fmt.Errorf("failed to get current migration version: %v", err)
+	}
+
+	// Run pending migrations
+	for _, migration := range migrations {
+		if migration.Version > currentVersion {
+			fmt.Printf("Running migration %d: %s\n", migration.Version, migration.Name)
+
+			// Execute migration
+			if _, err := db.Exec(migration.SQL); err != nil {
+				return fmt.Errorf("failed to run migration %d (%s): %v", migration.Version, migration.Name, err)
+			}
+
+			// Record migration
+			if _, err := db.Exec("INSERT INTO migrations (version, name) VALUES (?, ?)", migration.Version, migration.Name); err != nil {
+				return fmt.Errorf("failed to record migration %d: %v", migration.Version, err)
+			}
+
+			fmt.Printf("Migration %d completed successfully\n", migration.Version)
+		}
+	}
+
+	return nil
+}
+
+// Create database backup
+func createBackup() error {
+	// Create backups directory if it doesn't exist
+	backupDir := "./backups"
+	if err := os.MkdirAll(backupDir, 0755); err != nil {
+		return fmt.Errorf("failed to create backup directory: %v", err)
+	}
+
+	// Generate backup filename with timestamp
+	timestamp := time.Now().Format("20060102_150405")
+	backupPath := filepath.Join(backupDir, fmt.Sprintf("journal_backup_%s.db", timestamp))
+
+	// Open source database file
+	sourceFile, err := os.Open("./journal.db")
+	if err != nil {
+		return fmt.Errorf("failed to open source database: %v", err)
+	}
+	defer sourceFile.Close()
+
+	// Create backup file
+	backupFile, err := os.Create(backupPath)
+	if err != nil {
+		return fmt.Errorf("failed to create backup file: %v", err)
+	}
+	defer backupFile.Close()
+
+	// Copy database file
+	if _, err := io.Copy(backupFile, sourceFile); err != nil {
+		return fmt.Errorf("failed to copy database: %v", err)
+	}
+
+	fmt.Printf("Database backup created: %s\n", backupPath)
+	return nil
+}
+
+// Cleanup old backups (keep last 10)
+func cleanupOldBackups() error {
+	backupDir := "./backups"
+
+	// Read backup directory
+	files, err := os.ReadDir(backupDir)
+	if err != nil {
+		// If directory doesn't exist, that's fine
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("failed to read backup directory: %v", err)
+	}
+
+	// Filter backup files and sort by modification time
+	var backupFiles []os.FileInfo
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "journal_backup_") && strings.HasSuffix(file.Name(), ".db") {
+			info, err := file.Info()
+			if err != nil {
+				continue
+			}
+			backupFiles = append(backupFiles, info)
+		}
+	}
+
+	// If we have more than 10 backups, delete the oldest ones
+	if len(backupFiles) > 10 {
+		// Sort by modification time (oldest first)
+		for i := 0; i < len(backupFiles)-1; i++ {
+			for j := i + 1; j < len(backupFiles); j++ {
+				if backupFiles[i].ModTime().After(backupFiles[j].ModTime()) {
+					backupFiles[i], backupFiles[j] = backupFiles[j], backupFiles[i]
+				}
+			}
+		}
+
+		// Delete oldest backups
+		filesToDelete := len(backupFiles) - 10
+		for i := 0; i < filesToDelete; i++ {
+			oldBackupPath := filepath.Join(backupDir, backupFiles[i].Name())
+			if err := os.Remove(oldBackupPath); err != nil {
+				log.Printf("Warning: failed to delete old backup %s: %v", oldBackupPath, err)
+			} else {
+				fmt.Printf("Deleted old backup: %s\n", backupFiles[i].Name())
+			}
+		}
+	}
+
+	return nil
+}
+
+// Schedule automatic backups
+func scheduleBackups() {
+	ticker := time.NewTicker(24 * time.Hour) // Daily backups
+	go func() {
+		for range ticker.C {
+			if err := createBackup(); err != nil {
+				log.Printf("Automatic backup failed: %v", err)
+			} else {
+				// Cleanup old backups after successful backup
+				if err := cleanupOldBackups(); err != nil {
+					log.Printf("Failed to cleanup old backups: %v", err)
+				}
+			}
+		}
+	}()
+}
+
 // Initialize database
 func initDB() {
 	var err error
@@ -73,35 +275,18 @@ func initDB() {
 		log.Fatal("Failed to open database:", err)
 	}
 
-	// Create users table
-	createUsersTable := `
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		email TEXT UNIQUE NOT NULL,
-		password TEXT NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	);`
-
-	// Create entries table
-	createEntriesTable := `
-	CREATE TABLE IF NOT EXISTS entries (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
-		title TEXT NOT NULL,
-		text TEXT NOT NULL,
-		date TEXT NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (user_id) REFERENCES users (id)
-	);`
-
-	if _, err := db.Exec(createUsersTable); err != nil {
-		log.Fatal("Failed to create users table:", err)
+	// Run migrations
+	if err := runMigrations(); err != nil {
+		log.Fatal("Failed to run migrations:", err)
 	}
 
-	if _, err := db.Exec(createEntriesTable); err != nil {
-		log.Fatal("Failed to create entries table:", err)
+	// Create initial backup
+	if err := createBackup(); err != nil {
+		log.Printf("Warning: Failed to create initial backup: %v", err)
 	}
+
+	// Schedule automatic backups
+	scheduleBackups()
 
 	fmt.Println("Database initialized successfully")
 }
@@ -128,7 +313,6 @@ func generateToken(userID int, email string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
 }
@@ -144,7 +328,6 @@ func authenticateToken(next http.HandlerFunc) http.HandlerFunc {
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 		claims := &Claims{}
-
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
 		})
