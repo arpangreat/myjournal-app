@@ -10,6 +10,7 @@ const AuthPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -33,13 +34,14 @@ const AuthPage = () => {
 
   return (
     <div className="container">
-      <h2>My Journal's!!!</h2>
+      <h2>My Journals!!!</h2>
       <form onSubmit={handleSubmit}>
         {isSignup && (
           <div>
             <label>Name:</label>
             <input
               type="text"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -51,22 +53,34 @@ const AuthPage = () => {
           <label>Email:</label>
           <input
             type="email"
-            placeholder="projec18@gmail.com...."
+            placeholder="example@domain.com...."
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={loading}
           />
         </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
+        <div className="input-container">
+          <label className="password-label">Password:</label>
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              className="password-input"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={loading}
+              className="toggle-password"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button> 
+          </div>   
         </div>
         <button type="submit" disabled={loading}>
           {loading ? "Loading..." : (isSignup ? "Sign Up" : "Login")}
