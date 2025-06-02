@@ -16,7 +16,9 @@ body {
   box-shadow: 0 4px 8px rgba(5, 3, 28, 0.595);
   text-align: center;
   max-width: 400px;
-  width: 100%;
+  width: 85%;
+  margin-right: 100px;
+  /*margin-left: 100px;*/
 }
 p{
   color: #ffffff;
@@ -45,6 +47,13 @@ label {
   margin-top: 20px;
 }
 
+.password-label {
+  text-align: left;
+  display: block;
+  width: 100%;
+  margin-left: 35px;
+}
+
 input {
   width: 100%;
   padding: 10px;
@@ -54,11 +63,45 @@ input {
   font-size: 16px;
 }
 
+.password-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 83%;
+  margin-left: 34px;
+  margin-bottom: 15px;
+  /*margin-right: 20px;*/
+}
+
+.password-input {
+  width: 80%;
+  flex: 1;
+  padding: 10px;
+  padding-right: 50px;
+}
+
+.toggle-password {
+  position: absolute; 
+  right: 10px; 
+  top: 23%; 
+  transform: translateY(-50%);
+  padding: 3px 5px;
+  font-size: 12px;
+  width: 50px;       
+  min-width: auto;
+  cursor: pointer;
+  background: #d6d1d5;
+  border: 1px solid #e3dbdb;
+  border-radius: 5px;
+  color: rgb(64, 58, 58);
+}
+
 button {
   background-color: #af84ff;
   transition: all 0.2s;
   transform: translate;
-  color: rgb(255, 255, 255);
+  color: rgb(224, 213, 213);
   padding: 10px;
   border: none;
   border-radius: 4px;
@@ -66,6 +109,7 @@ button {
   cursor: pointer;
   margin-top: 15px;
   width: 50%;
+  margin-left: 10px;
 }
 
 button:hover {
