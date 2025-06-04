@@ -1,0 +1,82 @@
+.content-box {
+    width: 100vw;  /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e0e0e0; /* Soft background */
+}
+
+/* Inner box holding entry and analysis */
+.inner-container {
+    width: 90vw;  /* Responsive width */
+    height: 85vh; /* Ensuring full space usage */
+    display: flex;
+    flex-direction: row; /* Entry & Analysis sections in a row */
+    background: rgb(185, 106, 165);
+    border-radius: 12px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+}
+
+.entry-section, .analysis-section {
+    flex: 1;
+    padding: 20px;
+    background: #c68adc;
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.15); /* Soft shadow */
+}
+
+.entry-section {
+    height: 80vh; /* More space for journal entry */
+    background: #bcb0b0;
+}
+
+.analysis-section {
+    height: 80vh; /* Allocated space for future insights */
+    background: #eee;
+}
+
+h2 {
+    font-family: "Poppins", sans-serif;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.analysis-section h3 {
+    font-size: 1.2rem;
+    cursor: pointer; /* Encourage interaction */
+    transition: color 0.3s ease;
+}
+
+.analysis-section h3:hover {
+    color: #2980b9; /* Interactive effect */
+}
+
+h2, h3 {
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.entry-content {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    white-space: pre-line; /* Ensures line breaks are respected */
+}
+
+.back-button {
+    display: block;
+    width: 200px;
+    margin-top: 20px;
+    margin: 20px auto;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.back-button:hover {
+    background: #2980b9;
+}
