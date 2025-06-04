@@ -79,21 +79,26 @@
 
 .font-toggle-btn {
   border: none;
-  box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); 
-  padding: 10px 22px;
+  position:absolute ;
+  top: -90px;
+  right: -20px;
+   
+  padding: 0px 2px;
   font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 12px;
-  background: linear-gradient(45deg, #64f9f6, #d568a6);
+  background:#ffffff
 }
 
 .font-toggle-btn:hover{
-  background: linear-gradient(45deg, #2cddda, #e42893f0);
+  background: linear-gradient(45deg, #ffffff, #fffffff0);
 }
 
 .font-list {
   position: absolute;
+  top: -60px;
+  right: -10px;
   background-color: white;
   border: 1px solid #ccc;
   max-height: 150px;
@@ -104,6 +109,7 @@
   width: 200px;
   z-index: 10;
 }
+
 
 .font-list li {
   padding: 8px;

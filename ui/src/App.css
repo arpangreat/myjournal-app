@@ -91,17 +91,20 @@ input {
   width: 50px;       
   min-width: auto;
   cursor: pointer;
-  background: #d6d1d5;
-  border: 1px solid #e3dbdb;
+  background: #ffffff;
+  border: 1px solid #ffffff;
   border-radius: 5px;
-  color: rgb(64, 58, 58);
+  color: rgb(88, 88, 88);
+}
+.toggle-password:hover{
+  background: none;
 }
 
 button {
-  background-color: #af84ff;
+  background-color: #9359ff;
   transition: all 0.2s;
   transform: translate;
-  color: rgb(224, 213, 213);
+  color: rgb(255, 255, 255);
   padding: 10px;
   border: none;
   border-radius: 4px;
@@ -115,7 +118,7 @@ button {
 button:hover {
   cursor: pointer;
   transition: all 0.2s;
-  background: linear-gradient(45deg,#00ffd5,hsl(38, 100%, 35%));
+  background: linear-gradient(45deg,#950061,hsl(284, 78%, 47%));
 }
 button:hover > div {
   transform: translateX(-20px);
@@ -125,3 +128,4 @@ button:hover > .icon{
   opacity: 1;
   transform: translate(30px);
 }
+

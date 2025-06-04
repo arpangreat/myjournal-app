@@ -143,12 +143,12 @@ const AddEntry = ({ onAddEntry }) => {
 
 
       <div className="font-selector">
-        <button
+        <circle-button
           onClick={() => setShowFontList(!showFontList)}
           className="font-toggle-btn"
         >
-          🎨 Font Style
-        </button>
+          🎨
+        </circle-button>
         {showFontList && (
           <ul className="font-list">
             {fonts.map((font) => (
