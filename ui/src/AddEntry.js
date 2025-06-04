@@ -78,6 +78,7 @@ const AddEntry = ({ onAddEntry }) => {
   const handleCancel = () => {
     navigate("/Homepage");
   };
+
 //changing for font add
   const [selectedFont, setSelectedFont] = useState("inherit");
   const [showFontList, setShowFontList] = useState(false);
