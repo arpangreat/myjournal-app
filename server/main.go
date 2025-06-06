@@ -17,6 +17,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/cors"
 	"golang.org/x/crypto/bcrypt"
@@ -29,8 +30,20 @@ var db *sql.DB
 var jwtSecret = []byte("your-secret-key-change-this-in-production")
 
 // Hugging Face API configuration
-var huggingFaceAPIKey = os.Getenv("HUGGINGFACE_API_KEY") // Optional: Set for higher rate limits
-const huggingFaceAPIURL = "https://api-inference.huggingface.co/models/"
+// var huggingFaceAPIKey = os.Getenv("HUGGINGFACE_API_KEY") // Optional: Set for higher rate limits
+var huggingFaceAPIKey string // Declare the variable
+
+func init() {
+	// Load .env file first
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
+	// Then initialize the variable
+	huggingFaceAPIKey = os.Getenv("HUGGINGFACE_API_KEY") // Optional: Set for higher rate limits
+}
+
+const huggingFaceAPIURL = "https://router.huggingface.co/hf-inference/models/"
 
 // Migration struct
 type Migration struct {

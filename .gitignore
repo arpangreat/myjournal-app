@@ -24,4 +24,5 @@ yarn-error.log*
 server/backups
 server/journal.db
 **/*.db
+**/.env
 **/backups
