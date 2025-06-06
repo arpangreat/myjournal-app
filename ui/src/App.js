@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import Homepage from "./Homepage";
 import "./App.css";
 import AddEntry from "./AddEntry";
 import { authAPI, entriesAPI, handleAPIError } from "./api";
 
 import { JournalProvider } from "./context/JournalContext";
-import Analysis from "./Analysis"; 
+import Analysis from "./Analysis";
 
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(false);
@@ -82,8 +82,8 @@ const AuthPage = () => {
               className="toggle-password"
             >
               {showPassword ? "Hide" : "Show"}
-            </button> 
-          </div>   
+            </button>
+          </div>
         </div>
         <button type="submit" disabled={loading}>
           {loading ? "Loading..." : (isSignup ? "Sign Up" : "Login")}
@@ -173,6 +173,13 @@ const AppContent = () => {
     }
   };
 
+  const AnalysisWrapper = () => {
+    const { id } = useParams();
+    const token = localStorage.getItem("token");
+
+    return <Analysis entryId={id} token={token} />;
+  };
+
   return (
     <Routes>
       <Route path="/" element={<AuthPage />} />
@@ -193,7 +200,7 @@ const AppContent = () => {
         path="/AddEntry"
         element={<AddEntry onAddEntry={handleAddEntry} />}
       />
-      <Route path="/analysis" element={<Analysis />} />
+      <Route path="/analysis/:id" element={<AnalysisWrapper />} />
     </Routes>
   );
 };
