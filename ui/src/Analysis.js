@@ -98,6 +98,9 @@ const Analysis = () => {
           <p>
             <strong>Summary:</strong> {mood.summary}
           </p>
+          <p>
+            <strong>Suggestions:</strong> {mood.suggestions}
+          </p>
 
           {mood.emotions.length > 0 && (
             <>

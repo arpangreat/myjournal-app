@@ -209,42 +209,105 @@ func callHuggingFaceAPI(modelName, text string) ([]byte, error) {
 }
 
 func analyzeSentiment(text string) (string, float64, error) {
-	// Use cardiffnlp/twitter-roberta-base-sentiment-latest model
-	response, err := callHuggingFaceAPI("cardiffnlp/twitter-roberta-base-sentiment-latest", text)
+	response, err := callHuggingFaceAPI("tabularisai/multilingual-sentiment-analysis", text)
 	if err != nil {
 		return "", 0, err
 	}
 
-	var sentimentResponse HuggingFaceSentimentResponse
-	if err := json.Unmarshal(response, &sentimentResponse); err != nil {
-		return "", 0, err
+	// Log the raw response for debugging
+	log.Printf("Raw sentiment API response: %s", string(response))
+
+	// Try to unmarshal as nested array first (Hugging Face returns [[{...}]])
+	var nestedResponse [][]struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
 	}
 
-	if len(sentimentResponse) == 0 {
-		return "neutral", 0, nil
-	}
+	if err := json.Unmarshal(response, &nestedResponse); err == nil && len(nestedResponse) > 0 {
+		// Use the first inner array
+		sentimentResponse := nestedResponse[0]
+		if len(sentimentResponse) == 0 {
+			return "neutral", 0, nil
+		}
 
-	// Find the sentiment with highest score
-	var bestSentiment string
-	var bestScore float64
-	for _, result := range sentimentResponse {
-		if result.Score > bestScore {
-			bestScore = result.Score
-			bestSentiment = result.Label
+		// Find the sentiment with highest score
+		var bestSentiment string
+		var bestScore float64
+		for _, result := range sentimentResponse {
+			if result.Score > bestScore {
+				bestScore = result.Score
+				bestSentiment = result.Label
+			}
+		}
+
+		// Convert to readable format and score
+		switch strings.ToLower(bestSentiment) {
+		case "negative", "very negative":
+			return "negative", -bestScore, nil
+		case "neutral":
+			return "neutral", 0, nil
+		case "positive", "very positive":
+			return "positive", bestScore, nil
+		default:
+			return bestSentiment, bestScore, nil
 		}
 	}
 
-	// Convert to readable format and score
-	switch strings.ToLower(bestSentiment) {
-	case "label_0", "negative":
-		return "negative", -bestScore, nil
-	case "label_1", "neutral":
-		return "neutral", 0, nil
-	case "label_2", "positive":
-		return "positive", bestScore, nil
-	default:
-		return bestSentiment, bestScore, nil
+	// Fallback: Try to unmarshal as single array
+	var sentimentResponse []struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
 	}
+
+	if err := json.Unmarshal(response, &sentimentResponse); err == nil {
+		if len(sentimentResponse) == 0 {
+			return "neutral", 0, nil
+		}
+
+		// Find the sentiment with highest score
+		var bestSentiment string
+		var bestScore float64
+		for _, result := range sentimentResponse {
+			if result.Score > bestScore {
+				bestScore = result.Score
+				bestSentiment = result.Label
+			}
+		}
+
+		// Convert to readable format and score
+		switch strings.ToLower(bestSentiment) {
+		case "negative", "very negative":
+			return "negative", -bestScore, nil
+		case "neutral":
+			return "neutral", 0, nil
+		case "positive", "very positive":
+			return "positive", bestScore, nil
+		default:
+			return bestSentiment, bestScore, nil
+		}
+	}
+
+	// If both formats fail, try single object format
+	var singleResponse struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
+	}
+	if err := json.Unmarshal(response, &singleResponse); err == nil {
+		switch strings.ToLower(singleResponse.Label) {
+		case "negative", "very negative":
+			return "negative", -singleResponse.Score, nil
+		case "neutral":
+			return "neutral", 0, nil
+		case "positive", "very positive":
+			return "positive", singleResponse.Score, nil
+		default:
+			return singleResponse.Label, singleResponse.Score, nil
+		}
+	}
+
+	log.Printf("Failed to parse sentiment response in any expected format")
+	log.Printf("Raw response: %s", string(response))
+	return "neutral", 0, fmt.Errorf("failed to parse sentiment response")
 }
 
 func analyzeEmotions(text string) ([]EmotionResult, error) {
@@ -254,20 +317,60 @@ func analyzeEmotions(text string) ([]EmotionResult, error) {
 		return nil, err
 	}
 
-	var emotionResponse HuggingFaceEmotionResponse
-	if err := json.Unmarshal(response, &emotionResponse); err != nil {
-		return nil, err
+	// Log the raw response for debugging
+	log.Printf("Raw emotion API response: %s", string(response))
+
+	// Try to unmarshal as nested array first (Hugging Face returns [[{...}]])
+	var nestedResponse [][]struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
 	}
 
-	var emotions []EmotionResult
-	for _, emotion := range emotionResponse {
-		emotions = append(emotions, EmotionResult{
-			Label: emotion.Label,
-			Score: emotion.Score,
-		})
+	if err := json.Unmarshal(response, &nestedResponse); err == nil && len(nestedResponse) > 0 {
+		// Use the first inner array
+		emotionResponse := nestedResponse[0]
+		var emotions []EmotionResult
+		for _, emotion := range emotionResponse {
+			emotions = append(emotions, EmotionResult{
+				Label: emotion.Label,
+				Score: emotion.Score,
+			})
+		}
+		return emotions, nil
 	}
 
-	return emotions, nil
+	// Fallback: Try to unmarshal as single array
+	var emotionResponse []struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
+	}
+
+	if err := json.Unmarshal(response, &emotionResponse); err == nil {
+		var emotions []EmotionResult
+		for _, emotion := range emotionResponse {
+			emotions = append(emotions, EmotionResult{
+				Label: emotion.Label,
+				Score: emotion.Score,
+			})
+		}
+		return emotions, nil
+	}
+
+	// If array format fails, try single object format
+	var singleResponse struct {
+		Label string  `json:"label"`
+		Score float64 `json:"score"`
+	}
+	if err := json.Unmarshal(response, &singleResponse); err == nil {
+		return []EmotionResult{{
+			Label: singleResponse.Label,
+			Score: singleResponse.Score,
+		}}, nil
+	}
+
+	log.Printf("Failed to parse emotion response in any expected format")
+	log.Printf("Raw response: %s", string(response))
+	return nil, fmt.Errorf("failed to parse emotion response")
 }
 
 func performMoodAnalysis(text string) (*MoodResult, error) {
@@ -329,12 +432,22 @@ func generateMoodSummary(sentiment string, emotions []EmotionResult) string {
 	return summary.String()
 }
 
+// mistralai/Mixtral-8x7B-Instruct-v0.1
 func generateAISuggestions(text string) (string, error) {
-	model := "mistralai/Mixtral-8x7B-Instruct-v0.1" // Example instruction model
-	prompt := fmt.Sprintf("Given the following journal entry, suggest a helpful emotional or wellness activity:\n\n\"%s\"", text)
+	// Use a more reliable model for text generation
+	model := "mistralai/Mixtral-8x7B-Instruct-v0.1" // Alternative: "gpt2" or "facebook/blenderbot-400M-distill"
+
+	// Create a more focused prompt
+	prompt := fmt.Sprintf("Based on this journal entry, suggest one helpful wellness activity:\n\nJournal: \"%s\"\n\nSuggestion:", text)
 
 	payload := map[string]interface{}{
 		"inputs": prompt,
+		"parameters": map[string]interface{}{
+			"max_length":   150,
+			"temperature":  0.7,
+			"do_sample":    true,
+			"pad_token_id": 50256,
+		},
 	}
 
 	jsonPayload, err := json.Marshal(payload)
@@ -361,21 +474,124 @@ func generateAISuggestions(text string) (string, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("AI suggestion failed: %s", string(body))
+		log.Printf("AI suggestion API error: %s", string(body))
+		return generateFallbackSuggestion(text), nil // Return fallback instead of error
 	}
 
 	var result []map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
+		log.Printf("Failed to decode AI response: %v", err)
+		return generateFallbackSuggestion(text), nil
 	}
 
 	if len(result) > 0 {
 		if generated, ok := result[0]["generated_text"].(string); ok {
-			return strings.TrimSpace(generated), nil
+			// Clean up the response
+			cleaned := cleanAISuggestion(generated, prompt)
+			if cleaned != "" {
+				return cleaned, nil
+			}
 		}
 	}
 
-	return "No suggestion generated.", nil
+	return generateFallbackSuggestion(text), nil
+}
+
+// Clean up AI-generated suggestions
+func cleanAISuggestion(generated, originalPrompt string) string {
+	// Remove the original prompt from the response
+	suggestion := strings.Replace(generated, originalPrompt, "", 1)
+
+	// Clean up common issues
+	suggestion = strings.TrimSpace(suggestion)
+
+	// Remove any remaining prompt artifacts
+	lines := strings.Split(suggestion, "\n")
+	var cleanLines []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		// Skip lines that look like prompts or metadata
+		if strings.Contains(strings.ToLower(line), "journal entry") ||
+			strings.Contains(strings.ToLower(line), "suggestion:") ||
+			strings.Contains(strings.ToLower(line), "based on") ||
+			len(line) < 10 { // Skip very short lines
+			continue
+		}
+
+		// Clean up formatting
+		line = strings.Trim(line, "\"'*-")
+		if line != "" {
+			cleanLines = append(cleanLines, line)
+		}
+	}
+
+	if len(cleanLines) > 0 {
+		// Take the first meaningful line and ensure it's well-formatted
+		suggestion = cleanLines[0]
+
+		// Ensure it ends with proper punctuation
+		if !strings.HasSuffix(suggestion, ".") && !strings.HasSuffix(suggestion, "!") && !strings.HasSuffix(suggestion, "?") {
+			suggestion += "."
+		}
+
+		// Capitalize first letter
+		if len(suggestion) > 0 {
+			suggestion = strings.ToUpper(string(suggestion[0])) + suggestion[1:]
+		}
+
+		return suggestion
+	}
+
+	return ""
+}
+
+// Generate fallback suggestions based on sentiment
+func generateFallbackSuggestion(text string) string {
+	// Simple keyword-based suggestions as fallback
+	lowerText := strings.ToLower(text)
+
+	// Negative sentiment indicators
+	if strings.Contains(lowerText, "stress") || strings.Contains(lowerText, "anxious") || strings.Contains(lowerText, "worry") {
+		return "Try a 5-minute breathing exercise: breathe in for 4 counts, hold for 4, breathe out for 6. This can help calm your nervous system."
+	}
+
+	if strings.Contains(lowerText, "sad") || strings.Contains(lowerText, "down") || strings.Contains(lowerText, "depressed") {
+		return "Consider taking a short walk outside or doing something creative like drawing or listening to your favorite music."
+	}
+
+	if strings.Contains(lowerText, "tired") || strings.Contains(lowerText, "exhausted") || strings.Contains(lowerText, "sleep") {
+		return "Focus on getting quality rest tonight. Try creating a calming bedtime routine without screens for the last hour before sleep."
+	}
+
+	if strings.Contains(lowerText, "angry") || strings.Contains(lowerText, "frustrated") || strings.Contains(lowerText, "mad") {
+		return "Try some physical activity to release tension, like stretching, going for a walk, or doing jumping jacks for 2 minutes."
+	}
+
+	if strings.Contains(lowerText, "lonely") || strings.Contains(lowerText, "alone") {
+		return "Reach out to a friend or family member, even if just to say hello. Consider joining a community activity or volunteering."
+	}
+
+	// Positive sentiment
+	if strings.Contains(lowerText, "happy") || strings.Contains(lowerText, "good") || strings.Contains(lowerText, "great") {
+		return "Celebrate this positive moment! Consider writing down three things you're grateful for today."
+	}
+
+	// Default suggestions
+	suggestions := []string{
+		"Take a few minutes to practice mindfulness by focusing on your breathing and being present in the moment.",
+		"Try journaling about three things you're grateful for today, no matter how small they might seem.",
+		"Consider doing some light physical activity like stretching or taking a short walk to boost your mood.",
+		"Reach out to someone you care about and let them know you're thinking of them.",
+		"Practice self-compassion by treating yourself with the same kindness you'd show a good friend.",
+	}
+
+	// Return a random suggestion
+	return suggestions[len(text)%len(suggestions)]
 }
 
 func saveMoodAnalysis(entryID int, moodResult *MoodResult) error {
