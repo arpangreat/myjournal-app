@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -27,6 +28,10 @@ var db *sql.DB
 // JWT secret key (in production, use environment variable)
 var jwtSecret = []byte("your-secret-key-change-this-in-production")
 
+// Hugging Face API configuration
+var huggingFaceAPIKey = os.Getenv("HUGGINGFACE_API_KEY") // Optional: Set for higher rate limits
+const huggingFaceAPIURL = "https://api-inference.huggingface.co/models/"
+
 // Migration struct
 type Migration struct {
 	Version int
@@ -44,11 +49,38 @@ type User struct {
 
 // Entry struct
 type Entry struct {
-	ID     int    `json:"id"`
-	UserID int    `json:"user_id"`
-	Title  string `json:"title"`
-	Text   string `json:"text"`
-	Date   string `json:"date"`
+	ID           int         `json:"id"`
+	UserID       int         `json:"user_id"`
+	Title        string      `json:"title"`
+	Text         string      `json:"text"`
+	Date         string      `json:"date"`
+	MoodAnalysis *MoodResult `json:"mood_analysis,omitempty"`
+}
+
+// Mood analysis structs
+type MoodResult struct {
+	OverallSentiment string          `json:"overall_sentiment"`
+	SentimentScore   float64         `json:"sentiment_score"`
+	Emotions         []EmotionResult `json:"emotions"`
+	Summary          string          `json:"summary"`
+	Suggestions      string          `json:"suggestions"`
+	AnalyzedAt       time.Time       `json:"analyzed_at"`
+}
+
+type EmotionResult struct {
+	Label string  `json:"label"`
+	Score float64 `json:"score"`
+}
+
+// Hugging Face API response structures
+type HuggingFaceSentimentResponse []struct {
+	Label string  `json:"label"`
+	Score float64 `json:"score"`
+}
+
+type HuggingFaceEmotionResponse []struct {
+	Label string  `json:"label"`
+	Score float64 `json:"score"`
 }
 
 // Auth request structs
@@ -103,6 +135,270 @@ var migrations = []Migration{
 			FOREIGN KEY (user_id) REFERENCES users (id)
 		);`,
 	},
+	{
+		Version: 3,
+		Name:    "create_mood_analysis_table",
+		SQL: `
+		CREATE TABLE IF NOT EXISTS mood_analysis (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			entry_id INTEGER NOT NULL,
+			overall_sentiment TEXT NOT NULL,
+			sentiment_score REAL NOT NULL,
+			emotions TEXT NOT NULL, -- JSON string
+			summary TEXT,
+			suggestions TEXT,
+			analyzed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE
+		);`,
+	},
+}
+
+// Hugging Face API functions
+func callHuggingFaceAPI(modelName, text string) ([]byte, error) {
+	url := huggingFaceAPIURL + modelName
+
+	payload := map[string]interface{}{
+		"inputs": text,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	if huggingFaceAPIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+huggingFaceAPIKey)
+	}
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	return body, nil
+}
+
+func analyzeSentiment(text string) (string, float64, error) {
+	// Use cardiffnlp/twitter-roberta-base-sentiment-latest model
+	response, err := callHuggingFaceAPI("cardiffnlp/twitter-roberta-base-sentiment-latest", text)
+	if err != nil {
+		return "", 0, err
+	}
+
+	var sentimentResponse HuggingFaceSentimentResponse
+	if err := json.Unmarshal(response, &sentimentResponse); err != nil {
+		return "", 0, err
+	}
+
+	if len(sentimentResponse) == 0 {
+		return "neutral", 0, nil
+	}
+
+	// Find the sentiment with highest score
+	var bestSentiment string
+	var bestScore float64
+	for _, result := range sentimentResponse {
+		if result.Score > bestScore {
+			bestScore = result.Score
+			bestSentiment = result.Label
+		}
+	}
+
+	// Convert to readable format and score
+	switch strings.ToLower(bestSentiment) {
+	case "label_0", "negative":
+		return "negative", -bestScore, nil
+	case "label_1", "neutral":
+		return "neutral", 0, nil
+	case "label_2", "positive":
+		return "positive", bestScore, nil
+	default:
+		return bestSentiment, bestScore, nil
+	}
+}
+
+func analyzeEmotions(text string) ([]EmotionResult, error) {
+	// Use j-hartmann/emotion-english-distilroberta-base model
+	response, err := callHuggingFaceAPI("j-hartmann/emotion-english-distilroberta-base", text)
+	if err != nil {
+		return nil, err
+	}
+
+	var emotionResponse HuggingFaceEmotionResponse
+	if err := json.Unmarshal(response, &emotionResponse); err != nil {
+		return nil, err
+	}
+
+	var emotions []EmotionResult
+	for _, emotion := range emotionResponse {
+		emotions = append(emotions, EmotionResult{
+			Label: emotion.Label,
+			Score: emotion.Score,
+		})
+	}
+
+	return emotions, nil
+}
+
+func performMoodAnalysis(text string) (*MoodResult, error) {
+	// Analyze sentiment
+	sentiment, score, err := analyzeSentiment(text)
+	if err != nil {
+		log.Printf("Sentiment analysis failed: %v", err)
+		sentiment = "neutral"
+		score = 0
+	}
+
+	// Analyze emotions
+	emotions, err := analyzeEmotions(text)
+	if err != nil {
+		log.Printf("Emotion analysis failed: %v", err)
+		emotions = []EmotionResult{}
+	}
+
+	// Generate summary
+	summary := generateMoodSummary(sentiment, emotions)
+
+	// Generate AI suggestions
+	suggestions, err := generateAISuggestions(text)
+	if err != nil {
+		log.Printf("AI suggestion generation failed: %v", err)
+		suggestions = "Try reflecting more on your feelings or write another journal entry."
+	}
+
+	return &MoodResult{
+		OverallSentiment: sentiment,
+		SentimentScore:   score,
+		Emotions:         emotions,
+		Summary:          summary,
+		Suggestions:      suggestions,
+		AnalyzedAt:       time.Now(),
+	}, nil
+}
+
+func generateMoodSummary(sentiment string, emotions []EmotionResult) string {
+	var summary strings.Builder
+
+	summary.WriteString(fmt.Sprintf("Overall sentiment: %s. ", strings.Title(sentiment)))
+
+	if len(emotions) > 0 {
+		// Find top emotion
+		var topEmotion EmotionResult
+		for _, emotion := range emotions {
+			if emotion.Score > topEmotion.Score {
+				topEmotion = emotion
+			}
+		}
+
+		if topEmotion.Score > 0.3 {
+			summary.WriteString(fmt.Sprintf("Primary emotion detected: %s (%.1f%% confidence).",
+				strings.Title(topEmotion.Label), topEmotion.Score*100))
+		}
+	}
+
+	return summary.String()
+}
+
+func generateAISuggestions(text string) (string, error) {
+	model := "mistralai/Mixtral-8x7B-Instruct-v0.1" // Example instruction model
+	prompt := fmt.Sprintf("Given the following journal entry, suggest a helpful emotional or wellness activity:\n\n\"%s\"", text)
+
+	payload := map[string]interface{}{
+		"inputs": prompt,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest("POST", huggingFaceAPIURL+model, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	if huggingFaceAPIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+huggingFaceAPIKey)
+	}
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("AI suggestion failed: %s", string(body))
+	}
+
+	var result []map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	if len(result) > 0 {
+		if generated, ok := result[0]["generated_text"].(string); ok {
+			return strings.TrimSpace(generated), nil
+		}
+	}
+
+	return "No suggestion generated.", nil
+}
+
+func saveMoodAnalysis(entryID int, moodResult *MoodResult) error {
+	emotionsJSON, err := json.Marshal(moodResult.Emotions)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`
+	INSERT INTO mood_analysis (entry_id, overall_sentiment, sentiment_score, emotions, summary, suggestions)
+	VALUES (?, ?, ?, ?, ?, ?)`,
+		entryID, moodResult.OverallSentiment, moodResult.SentimentScore,
+		string(emotionsJSON), moodResult.Summary, moodResult.Suggestions)
+
+	return err
+}
+
+func getMoodAnalysis(entryID int) (*MoodResult, error) {
+	var moodResult MoodResult
+	var emotionsJSON string
+
+	err := db.QueryRow(`
+		SELECT overall_sentiment, sentiment_score, emotions, summary, suggestions, analyzed_at
+		FROM mood_analysis WHERE entry_id = ?`, entryID).Scan(
+		&moodResult.OverallSentiment, &moodResult.SentimentScore,
+		&emotionsJSON, &moodResult.Summary, &moodResult.Suggestions, &moodResult.AnalyzedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal([]byte(emotionsJSON), &moodResult.Emotions); err != nil {
+		return nil, err
+	}
+
+	return &moodResult, nil
 }
 
 // Create migrations table
@@ -113,7 +409,6 @@ func createMigrationsTable() error {
 		name TEXT NOT NULL,
 		applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`
-
 	_, err := db.Exec(createMigrationsSQL)
 	return err
 }
@@ -313,6 +608,7 @@ func generateToken(userID int, email string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
 }
@@ -327,6 +623,7 @@ func authenticateToken(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
@@ -463,6 +760,12 @@ func getEntriesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		entry.UserID = userID
+
+		// Try to get mood analysis for this entry
+		if moodAnalysis, err := getMoodAnalysis(entry.ID); err == nil {
+			entry.MoodAnalysis = moodAnalysis
+		}
+
 		entries = append(entries, entry)
 	}
 
@@ -501,6 +804,20 @@ func createEntryHandler(w http.ResponseWriter, r *http.Request) {
 	entryID, _ := result.LastInsertId()
 	entry.ID = int(entryID)
 	entry.UserID = userID
+
+	// Perform mood analysis in background
+	go func() {
+		combinedText := entry.Title + " " + entry.Text
+		if moodResult, err := performMoodAnalysis(combinedText); err == nil {
+			if err := saveMoodAnalysis(int(entryID), moodResult); err != nil {
+				log.Printf("Failed to save mood analysis for entry %d: %v", entryID, err)
+			} else {
+				log.Printf("Mood analysis completed for entry %d", entryID)
+			}
+		} else {
+			log.Printf("Failed to perform mood analysis for entry %d: %v", entryID, err)
+		}
+	}()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -545,6 +862,22 @@ func updateEntryHandler(w http.ResponseWriter, r *http.Request) {
 	entry.ID = entryID
 	entry.UserID = userID
 
+	// Re-analyze mood in background
+	go func() {
+		combinedText := entry.Title + " " + entry.Text
+		if moodResult, err := performMoodAnalysis(combinedText); err == nil {
+			// Delete old analysis and save new one
+			db.Exec("DELETE FROM mood_analysis WHERE entry_id = ?", entryID)
+			if err := saveMoodAnalysis(entryID, moodResult); err != nil {
+				log.Printf("Failed to save updated mood analysis for entry %d: %v", entryID, err)
+			} else {
+				log.Printf("Mood analysis updated for entry %d", entryID)
+			}
+		} else {
+			log.Printf("Failed to perform mood analysis for updated entry %d: %v", entryID, err)
+		}
+	}()
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(entry)
 }
@@ -570,7 +903,7 @@ func deleteEntryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Delete entry
+	// Delete entry (mood analysis will be deleted due to CASCADE)
 	_, err = db.Exec("DELETE FROM entries WHERE id = ?", entryID)
 	if err != nil {
 		http.Error(w, "Failed to delete entry", http.StatusInternalServerError)
@@ -580,12 +913,45 @@ func deleteEntryHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// New endpoint to get mood analysis for a specific entry
+func getMoodAnalysisHandler(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
+	vars := mux.Vars(r)
+	entryID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid entry ID", http.StatusBadRequest)
+		return
+	}
+
+	// Check if entry belongs to user
+	var ownerID int
+	err = db.QueryRow("SELECT user_id FROM entries WHERE id = ?", entryID).Scan(&ownerID)
+	if err != nil {
+		http.Error(w, "Entry not found", http.StatusNotFound)
+		return
+	}
+	if ownerID != userID {
+		http.Error(w, "Unauthorized", http.StatusForbidden)
+		return
+	}
+
+	// Get mood analysis
+	moodAnalysis, err := getMoodAnalysis(entryID)
+	if err != nil {
+		http.Error(w, "Mood analysis not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(moodAnalysis)
+}
+
 func main() {
 	// Initialize database
 	initDB()
 	defer db.Close()
 
-	// Create router
+	// Check if Hugging Face API key is provided
 	r := mux.NewRouter()
 
 	// Auth routes
@@ -597,6 +963,7 @@ func main() {
 	r.HandleFunc("/api/entries", authenticateToken(createEntryHandler)).Methods("POST")
 	r.HandleFunc("/api/entries/{id}", authenticateToken(updateEntryHandler)).Methods("PUT")
 	r.HandleFunc("/api/entries/{id}", authenticateToken(deleteEntryHandler)).Methods("DELETE")
+	r.HandleFunc("/api/entries/{id}/mood", authenticateToken(getMoodAnalysisHandler)).Methods("GET")
 
 	// Setup CORS
 	c := cors.New(cors.Options{

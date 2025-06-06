@@ -78,10 +78,10 @@ const Home = (
   };
 
   const handleEntryClick = (entry) => {
-    setSelectedEntry(entry);  // Store selected entry in JournalContext
+    setSelectedEntry(entry); // Store selected entry in JournalContext
     console.log("Entry Clicked in Homepage:", JSON.stringify(entry, null, 2));
- 
-    navigate("/Analysis");  // Navigate to the Analysis Page
+
+    navigate(`/analysis/${entry.id}`);
   };
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -95,14 +95,16 @@ const Home = (
         const toggleBtn = document.querySelector(".toggle-btn");
 
         // If clicked outside sidebar and toggle button, close the sidebar
-        if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+        if (
+          !sidebar.contains(event.target) && !toggleBtn.contains(event.target)
+        ) {
           setSidebarOpen(false);
         }
       }
     };
 
     document.addEventListener("click", handleClickOutside);
-  
+
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
@@ -328,14 +330,18 @@ const Home = (
                   <div
                     key={entry.id || `entry-${index}`}
                     className="entry-item"
-                    onClick={() => handleEntryClick(entry)} 
+                    onClick={() => handleEntryClick(entry)}
                     style={{ cursor: "pointer" }}
                   >
                     <div className="entry-header">
                       <div className="entry-date-wrapper">
-                        <span className="entry-date">{formatDate(entry.date)}</span>
-                        <span className="entry-time">{entry.time ? entry.time : "-"}</span>
-                      </div>  
+                        <span className="entry-date">
+                          {formatDate(entry.date)}
+                        </span>
+                        <span className="entry-time">
+                          {entry.time ? entry.time : "-"}
+                        </span>
+                      </div>
 
                       <h4 className="entry-title">{entry.title}</h4>
 
@@ -343,7 +349,14 @@ const Home = (
                         {entry.text}
                       </div>
 
-                      <div className="entry-actions" style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                      <div
+                        className="entry-actions"
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          marginTop: "10px",
+                        }}
+                      >
                         <button
                           className="edit-btn"
                           onClick={(e) => {
@@ -370,7 +383,7 @@ const Home = (
                     </div>
                     <h4 className="entry-title">{entry.title}</h4>
                     <div
-                      className="entry-text"                      
+                      className="entry-text"
                       dangerouslySetInnerHTML={{
                         __html: searchQuery
                           ? entry.text.split("\n")[0].replace(
