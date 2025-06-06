@@ -5,6 +5,9 @@ import "./App.css";
 import AddEntry from "./AddEntry";
 import { authAPI, entriesAPI, handleAPIError } from "./api";
 
+import { JournalProvider } from "./context/JournalContext";
+import Analysis from "./Analysis"; 
+
 const AuthPage = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [name, setName] = useState("");
@@ -190,12 +193,17 @@ const AppContent = () => {
         path="/AddEntry"
         element={<AddEntry onAddEntry={handleAddEntry} />}
       />
+      <Route path="/analysis" element={<Analysis />} />
     </Routes>
   );
 };
 
 const App = () => {
-  return <AppContent />;
+  return (
+    <JournalProvider>
+      <AppContent />
+    </JournalProvider>
+  );
 };
 
 export default App;

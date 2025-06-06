@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Homepage.css";
 
+import { useJournal } from "./context/JournalContext";
+
 const formatDate = (dateString) => {
   const [month, day, year] = dateString.split("/");
   return `${day}/${month}/${year}`;
@@ -18,6 +20,8 @@ const Home = (
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  const { setSelectedEntry } = useJournal();
 
   // Load user info and entries on component mount
   useEffect(() => {
@@ -71,6 +75,13 @@ const Home = (
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEntryClick = (entry) => {
+    setSelectedEntry(entry);  // Store selected entry in JournalContext
+    console.log("Entry Clicked in Homepage:", JSON.stringify(entry, null, 2));
+ 
+    navigate("/Analysis");  // Navigate to the Analysis Page
   };
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -317,16 +328,28 @@ const Home = (
                   <div
                     key={entry.id || `entry-${index}`}
                     className="entry-item"
+                    onClick={() => handleEntryClick(entry)} 
+                    style={{ cursor: "pointer" }}
                   >
                     <div className="entry-header">
                       <div className="entry-date-wrapper">
                         <span className="entry-date">{formatDate(entry.date)}</span>
                         <span className="entry-time">{entry.time ? entry.time : "-"}</span>
                       </div>  
-                      <div className="entry-actions">
+
+                      <h4 className="entry-title">{entry.title}</h4>
+
+                      <div className="entry-text">
+                        {entry.text}
+                      </div>
+
+                      <div className="entry-actions" style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
                         <button
                           className="edit-btn"
-                          onClick={() => handleEditEntry(index)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditEntry(index);
+                          }}
                           title="Edit entry"
                           aria-label={`Edit entry: ${entry.title}`}
                         >
@@ -334,7 +357,10 @@ const Home = (
                         </button>
                         <button
                           className="delete-btn"
-                          onClick={() => handleDeleteEntry(index)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEntry(index);
+                          }}
                           title="Delete entry"
                           aria-label={`Delete entry: ${entry.title}`}
                         >
