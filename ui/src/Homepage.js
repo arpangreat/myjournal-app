@@ -381,18 +381,6 @@ const Home = (
                         </button>
                       </div>
                     </div>
-                    <h4 className="entry-title">{entry.title}</h4>
-                    <div
-                      className="entry-text"
-                      dangerouslySetInnerHTML={{
-                        __html: searchQuery
-                          ? entry.text.split("\n")[0].replace(
-                            new RegExp(`(${searchQuery})`, "gi"),
-                            "<mark>$1</mark>",
-                          )
-                          : entry.text.split("\n")[0],
-                      }}
-                    />
                   </div>
                 ))}
               </div>
