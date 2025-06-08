@@ -53,20 +53,22 @@ type Migration struct {
 }
 
 // User struct
+// Updated structs to include CreatedAt fields
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password,omitempty"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-// Entry struct
 type Entry struct {
 	ID           int         `json:"id"`
 	UserID       int         `json:"user_id"`
 	Title        string      `json:"title"`
 	Text         string      `json:"text"`
 	Date         string      `json:"date"`
+	CreatedAt    time.Time   `json:"created_at"`
 	MoodAnalysis *MoodResult `json:"mood_analysis,omitempty"`
 }
 
@@ -908,17 +910,20 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID, _ := result.LastInsertId()
 
+	// Get the created user with created_at timestamp
+	var user User
+	err = db.QueryRow("SELECT id, name, email, created_at FROM users WHERE id = ?", userID).
+		Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		http.Error(w, "Failed to retrieve created user", http.StatusInternalServerError)
+		return
+	}
+
 	// Generate token
 	token, err := generateToken(int(userID), req.Email)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
-	}
-
-	user := User{
-		ID:    int(userID),
-		Name:  req.Name,
-		Email: req.Email,
 	}
 
 	response := AuthResponse{
@@ -937,11 +942,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user from database
+	// Get user from database - now including created_at
 	var user User
 	var hashedPassword string
-	err := db.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?", req.Email).
-		Scan(&user.ID, &user.Name, &user.Email, &hashedPassword)
+	err := db.QueryRow("SELECT id, name, email, password, created_at FROM users WHERE email = ?", req.Email).
+		Scan(&user.ID, &user.Name, &user.Email, &hashedPassword, &user.CreatedAt)
 	if err != nil {
 		http.Error(w, "No such user found, Please sign up!", http.StatusUnauthorized)
 		return
@@ -973,7 +978,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func getEntriesHandler(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
 
-	rows, err := db.Query("SELECT id, title, text, date FROM entries WHERE user_id = ? ORDER BY created_at DESC", userID)
+	// Updated query to include created_at
+	rows, err := db.Query("SELECT id, title, text, date, created_at FROM entries WHERE user_id = ? ORDER BY created_at DESC", userID)
 	if err != nil {
 		http.Error(w, "Failed to fetch entries", http.StatusInternalServerError)
 		return
@@ -983,7 +989,8 @@ func getEntriesHandler(w http.ResponseWriter, r *http.Request) {
 	var entries []Entry
 	for rows.Next() {
 		var entry Entry
-		err := rows.Scan(&entry.ID, &entry.Title, &entry.Text, &entry.Date)
+		// Updated scan to include created_at
+		err := rows.Scan(&entry.ID, &entry.Title, &entry.Text, &entry.Date, &entry.CreatedAt)
 		if err != nil {
 			http.Error(w, "Failed to scan entry", http.StatusInternalServerError)
 			return
@@ -1031,7 +1038,14 @@ func createEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	entryID, _ := result.LastInsertId()
-	entry.ID = int(entryID)
+
+	// Get the created entry with created_at timestamp
+	err = db.QueryRow("SELECT id, title, text, date, created_at FROM entries WHERE id = ?", entryID).
+		Scan(&entry.ID, &entry.Title, &entry.Text, &entry.Date, &entry.CreatedAt)
+	if err != nil {
+		http.Error(w, "Failed to retrieve created entry", http.StatusInternalServerError)
+		return
+	}
 	entry.UserID = userID
 
 	// Perform mood analysis in background
@@ -1088,7 +1102,13 @@ func updateEntryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry.ID = entryID
+	// Get the updated entry with created_at timestamp
+	err = db.QueryRow("SELECT id, title, text, date, created_at FROM entries WHERE id = ?", entryID).
+		Scan(&entry.ID, &entry.Title, &entry.Text, &entry.Date, &entry.CreatedAt)
+	if err != nil {
+		http.Error(w, "Failed to retrieve updated entry", http.StatusInternalServerError)
+		return
+	}
 	entry.UserID = userID
 
 	// Re-analyze mood in background

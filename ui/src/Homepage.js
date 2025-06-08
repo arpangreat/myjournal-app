@@ -5,10 +5,69 @@ import "./Homepage.css";
 import { useJournal } from "./context/JournalContext";
 
 const formatDate = (dateString) => {
-  const [month, day, year] = dateString.split("/");
-  return `${day}/${month}/${year}`;
+  if (!dateString) return "";
+
+  // If it's a full datetime string, extract just the date part
+  if (
+    dateString.includes("T") ||
+    (dateString.includes(" ") && dateString.includes(":"))
+  ) {
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+      });
+    }
+  }
+
+  // Handle MM/DD/YYYY format
+  if (dateString.includes("/")) {
+    const parts = dateString.split(" ")[0].split("/"); // Take only date part before space
+    if (parts.length === 3) {
+      const [month, day, year] = parts;
+      return `${day}/${month}/${year}`;
+    }
+  }
+
+  return dateString.split(" ")[0]; // Fallback: return everything before first space
 };
 
+const formatTime = (dateTimeString) => {
+  if (!dateTimeString) return "No time";
+
+  try {
+    // Handle various formats
+    let date;
+
+    // If it's already a Date object
+    if (dateTimeString instanceof Date) {
+      date = dateTimeString;
+    } // If it's a string, try to parse it
+    else if (typeof dateTimeString === "string") {
+      // Handle MySQL datetime format (YYYY-MM-DD HH:mm:ss)
+      if (dateTimeString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+        date = new Date(dateTimeString.replace(" ", "T") + "Z");
+      } else {
+        date = new Date(dateTimeString);
+      }
+    }
+
+    if (date && !isNaN(date.getTime())) {
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+
+    return "Invalid time";
+  } catch (error) {
+    console.error("Error formatting time:", error, dateTimeString);
+    return "Error";
+  }
+};
 const Home = (
   { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
 ) => {
@@ -336,10 +395,24 @@ const Home = (
                     <div className="entry-header">
                       <div className="entry-date-wrapper">
                         <span className="entry-date">
-                          {formatDate(entry.date)}
+                          {(() => {
+                            if (entry.created_at) {
+                              const date = new Date(entry.created_at);
+                              if (!isNaN(date.getTime())) {
+                                return date.toLocaleDateString("en-US", {
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                  year: "numeric",
+                                });
+                              }
+                            }
+                            return entry.date
+                              ? formatDate(entry.date)
+                              : "No date";
+                          })()}
                         </span>
                         <span className="entry-time">
-                          {entry.time ? entry.time : "-"}
+                          {formatTime(entry.created_at)}
                         </span>
                       </div>
 
