@@ -943,13 +943,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	err := db.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?", req.Email).
 		Scan(&user.ID, &user.Name, &user.Email, &hashedPassword)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		http.Error(w, "No such user found, Please sign up!", http.StatusUnauthorized)
 		return
 	}
 
 	// Check password
 	if !checkPassword(req.Password, hashedPassword) {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
 
