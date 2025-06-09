@@ -71,27 +71,26 @@ const formatTime = (dateTimeString) => {
 
 const getFirstLineWithEllipsis = (text) => {
   if (!text) return "";
-  
+
   // Get first line (split by line breaks)
   const firstLine = text.split(/\r?\n/)[0].trim();
-  
+
   // Check if first line contains a full stop
-  const fullStopIndex = firstLine.indexOf('.');
-  
+  const fullStopIndex = firstLine.indexOf(".");
+
   if (fullStopIndex !== -1) {
     // If there's a full stop, truncate at the full stop and add ellipsis
-    return firstLine.substring(0, fullStopIndex + 1) + '...';
+    return firstLine.substring(0, fullStopIndex + 1) + "...";
   }
-  
+
   // If there are more lines or the first line is long, add ellipsis
-  if (text.includes('\n') || text.includes('\r') || firstLine.length > 100) {
-    return firstLine.substring(0, 100) + '...';
+  if (text.includes("\n") || text.includes("\r") || firstLine.length > 100) {
+    return firstLine.substring(0, 100) + "...";
   }
-  
+
   // Return the first line as is if it's complete and short
   return firstLine;
 };
-
 
 const Home = (
   { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
@@ -193,8 +192,6 @@ const Home = (
       document.removeEventListener("click", handleClickOutside);
     };
   }, [sidebarOpen]);
-
-  
 
   const handleDeleteEntry = async (index) => {
     const entry = filteredEntries[index]; // Use filteredEntries instead of entries
@@ -352,11 +349,20 @@ const Home = (
           </Link>
         </div>
 
-        <div className="entries" style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        <div
+          className="entries"
+          style={{ maxHeight: "70vh" }}
+        >
           <h3>Your Journal Entries ({uniqueEntries.length})</h3>
           {filteredEntries.length > 0
             ? (
-              <div className="entries-list" style={{ maxHeight: "calc(70vh - 60px)", overflowY: "auto", paddingRight: "10px" }}>
+              <div
+                className="entries-list"
+                style={{
+                  maxHeight: "calc(70vh - 60px)",
+                  paddingRight: "5px",
+                }}
+              >
                 {filteredEntries.map((entry, index) => (
                   <div
                     key={entry.id || `entry-${index}`}
@@ -390,7 +396,15 @@ const Home = (
 
                       <h4 className="entry-title">{entry.title}</h4>
 
-                      <div className="entry-text" style={{ height: "50px", overflow: "hidden", lineHeight: "40px", marginBottom: "2px" }}>
+                      <div
+                        className="entry-text"
+                        style={{
+                          height: "50px",
+                          overflow: "hidden",
+                          lineHeight: "40px",
+                          marginBottom: "2px",
+                        }}
+                      >
                         {getFirstLineWithEllipsis(entry.text)}
                       </div>
 
@@ -403,7 +417,6 @@ const Home = (
                           width: "100%",
                         }}
                       >
-                        
                         <button
                           className="delete-btn"
                           onClick={(e) => {
@@ -413,9 +426,10 @@ const Home = (
                           title="Delete entry"
                           aria-label={`Delete entry: ${entry.title}`}
                           style={{
-                            width: "900%",      // Full width of container
-                            maxWidth: "1500px",  // Optional: limit maximum width
-                            padding: "8px 16px" // Optional: adjust padding for better appearance
+                            width: "900%", // Full width of container
+                            maxWidth: "1500px", // Optional: limit maximum width
+                            // padding: "8px 16px", // Optional: adjust padding for better appearance
+                            margin: "0px 0px 10px 0px",
                           }}
                         >
                           🗑️

@@ -135,8 +135,8 @@ body {
   font-size: 16px;
   transition: background-color 0.3s ease;
   /*Makes Entry-box button rectangular*/
-   width: 140px;
-   height: 40px;
+  width: 140px;
+  height: 40px;
 }
 
 .entry-box button:hover {
@@ -156,11 +156,14 @@ body {
   background: #fffffffb;
   box-sizing: content-box;
   border-radius: 5px;
+  scrollbar-width: 10px;
+  scrollbar-color: #f4f4f4;
 }
 
 /* Custom Scrollbar Styling (Optional) */
 .entries::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 .entries::-webkit-scrollbar-thumb {
@@ -176,20 +179,23 @@ body {
   font-size: 18px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 5px; /* Adds spacing before entry text */
+  margin-bottom: 5px;
+  /* Adds spacing before entry text */
 }
 
 .entry-text {
   word-wrap: break-word;
   overflow-wrap: break-word;
-  white-space: normal; /* Ensures long paragraphs wrap properly */
+  white-space: normal;
+  /* Ensures long paragraphs wrap properly */
   max-width: 100%;
 }
 
 
 .entry-date-wrapper {
   display: flex;
-  justify-content: space-between; /* Pushes time to the right */
+  justify-content: space-between;
+  /* Pushes time to the right */
   align-items: center;
   width: 100%;
 }
@@ -198,7 +204,8 @@ body {
   font-size: 14px;
   color: #555;
   font-weight: bold;
-  margin-left: auto; /* Moves time to the right */
+  margin-left: auto;
+  /* Moves time to the right */
 }
 
 
