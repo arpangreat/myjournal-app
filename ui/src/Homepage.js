@@ -68,6 +68,31 @@ const formatTime = (dateTimeString) => {
     return "Error";
   }
 };
+
+const getFirstLineWithEllipsis = (text) => {
+  if (!text) return "";
+  
+  // Get first line (split by line breaks)
+  const firstLine = text.split(/\r?\n/)[0].trim();
+  
+  // Check if first line contains a full stop
+  const fullStopIndex = firstLine.indexOf('.');
+  
+  if (fullStopIndex !== -1) {
+    // If there's a full stop, truncate at the full stop and add ellipsis
+    return firstLine.substring(0, fullStopIndex + 1) + '...';
+  }
+  
+  // If there are more lines or the first line is long, add ellipsis
+  if (text.includes('\n') || text.includes('\r') || firstLine.length > 100) {
+    return firstLine.substring(0, 100) + '...';
+  }
+  
+  // Return the first line as is if it's complete and short
+  return firstLine;
+};
+
+
 const Home = (
   { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
 ) => {
@@ -169,60 +194,7 @@ const Home = (
     };
   }, [sidebarOpen]);
 
-  // Entry management functions for editing and deleting journal entries
-  const handleEditEntry = async (index) => {
-    const entry = filteredEntries[index]; // Use filteredEntries instead of entries
-
-    // Prompt user to edit the selected entry
-    const updatedTitle = prompt("Edit your title:", entry.title);
-    if (updatedTitle === null) return; // User cancelled
-
-    const updatedText = prompt("Edit your entry:", entry.text);
-    if (updatedText === null) return; // User cancelled
-
-    if (updatedTitle.trim() === "" || updatedText.trim() === "") {
-      alert("Title and text cannot be empty");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/entries/${entry.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: updatedTitle.trim(),
-            text: updatedText.trim(),
-          }),
-        },
-      );
-
-      if (response.ok) {
-        const updatedEntry = await response.json();
-        // Reload entries from server to ensure consistency
-        await loadEntries();
-      } else if (response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate("/login");
-      } else {
-        alert("Failed to update entry");
-      }
-    } catch (error) {
-      console.error("Error updating entry:", error);
-      alert("Failed to update entry. Please try again.");
-    }
-  };
+  
 
   const handleDeleteEntry = async (index) => {
     const entry = filteredEntries[index]; // Use filteredEntries instead of entries
@@ -380,11 +352,11 @@ const Home = (
           </Link>
         </div>
 
-        <div className="entries">
+        <div className="entries" style={{ maxHeight: "70vh", overflowY: "auto" }}>
           <h3>Your Journal Entries ({uniqueEntries.length})</h3>
           {filteredEntries.length > 0
             ? (
-              <div className="entries-list">
+              <div className="entries-list" style={{ maxHeight: "calc(70vh - 60px)", overflowY: "auto", paddingRight: "10px" }}>
                 {filteredEntries.map((entry, index) => (
                   <div
                     key={entry.id || `entry-${index}`}
@@ -418,29 +390,20 @@ const Home = (
 
                       <h4 className="entry-title">{entry.title}</h4>
 
-                      <div className="entry-text">
-                        {entry.text}
+                      <div className="entry-text" style={{ height: "50px", overflow: "hidden", lineHeight: "40px", marginBottom: "2px" }}>
+                        {getFirstLineWithEllipsis(entry.text)}
                       </div>
 
                       <div
                         className="entry-actions"
                         style={{
                           display: "flex",
-                          gap: "10px",
-                          marginTop: "10px",
+                          justifyContent: "center",
+                          marginTop: "2px",
+                          width: "100%",
                         }}
                       >
-                        <button
-                          className="edit-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditEntry(index);
-                          }}
-                          title="Edit entry"
-                          aria-label={`Edit entry: ${entry.title}`}
-                        >
-                          ✏️
-                        </button>
+                        
                         <button
                           className="delete-btn"
                           onClick={(e) => {
@@ -449,6 +412,11 @@ const Home = (
                           }}
                           title="Delete entry"
                           aria-label={`Delete entry: ${entry.title}`}
+                          style={{
+                            width: "900%",      // Full width of container
+                            maxWidth: "1500px",  // Optional: limit maximum width
+                            padding: "8px 16px" // Optional: adjust padding for better appearance
+                          }}
                         >
                           🗑️
                         </button>
