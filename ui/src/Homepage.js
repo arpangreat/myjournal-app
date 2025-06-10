@@ -461,7 +461,7 @@ const Home = (
             <p>Are you sure you want to logout?</p>
             <div className="logout-modal-actions">
               <button className="yes-btn" onClick={handleConfirmLogout}>
-                Yes, Logout
+                Yes
               </button>
               <button className="no-btn" onClick={handleCancelLogout}>
                 Cancel

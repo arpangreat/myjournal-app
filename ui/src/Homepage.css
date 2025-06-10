@@ -274,37 +274,41 @@ li button:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 40px;
+  font-size: 12px;
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 5px 22px rgba(0, 0, 0, 0.2);
   z-index: 999;
   /* High value ensures it appears above everything */
-  width: 150px;
+  width: 200px;
+  height: 200px;
   /* Adjust width for better visibility */
 }
 
 .logout-modal p {
-  font-size: 22px;
+  font-size: 16px;
+  text-align: center;
+  color: #000000;
   margin-bottom: 20px;
 }
 
-.logout-modal button {
-  padding: 5px 0px;
-  margin: 3px;
-  border: none;
-  cursor: pointer;
-  border-radius: 100px;
-}
 
 .welcome-text {
-  color: rgb(87, 2, 2);
+  color: rgb(0, 0, 0);
 }
 
 .yes-btn {
+  position: fixed;
+  /* Ensures it stays on top */
+  top: 60%;
+  left: 22%;
+  border-radius: 15px;
+  padding: 7px;
   background: linear-gradient(45deg, #bf8fff, #ff8b9f);
   color: white;
+  text-align: center;
 }
 
 .yes-btn:hover {
@@ -312,6 +316,13 @@ li button:hover {
 }
 
 .no-btn {
+  position: fixed;
+  /* Ensures it stays on top */
+  top: 75%;
+  left: 22%;
+  border-radius: 15px;
+  padding: 7px;
+  text-align: center;
   background: linear-gradient(45deg, #bf8fff, #ff8b9f);
   color: white;
 }
@@ -526,4 +537,34 @@ input:checked+.slider::before {
 
 .dark-mode .welcome-text {
   color: white;
+}
+
+
+
+/* Modal box styling */
+.modal-box {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 20px;
+  background-color: white;
+  border: 2px solid black;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* Close button styling */
+.close-btn {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background-color: #cc0000;
 }
