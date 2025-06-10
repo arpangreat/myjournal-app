@@ -52,12 +52,13 @@
 h2 {
   font-family: "Poppins", sans-serif;
   font-size: 1.5rem;
-  color: #333;
+  color: #b68080;
 }
 
 .analysis-section h3 {
   font-size: 1.2rem;
   cursor: pointer;
+  color: #7f64a4;
   /* Encourage interaction */
   transition: color 0.3s ease;
 }
@@ -71,14 +72,16 @@ h2,
 h3 {
   font-size: 1.8rem;
   text-align: center;
+  color: #7f64a4;
 }
 
 .analysis-section p {
-  color: #000;
+  color: #000000;
 }
 
 .entry-content {
   font-size: 1.1rem;
+  color: #000;
   line-height: 1.5;
   white-space: pre-line;
   /* Ensures line breaks are respected */
