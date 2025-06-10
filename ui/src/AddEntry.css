@@ -3,8 +3,8 @@
   min-width: 400px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #fff7fb;
-  border: 2px dashed #e48ec9;
+  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  border: 2px dashed #794c6b;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Comic Neue', cursive, sans-serif;
@@ -23,8 +23,8 @@
   margin: 10px 0;
   border: 2px solid #f5b3da;
   border-radius: 10px;
+  font-family: 'Comic Neue', cursive, sans-serif;
   font-size: 1rem;
-  font-family: 'Comic Neue', cursive;
   background-color: #fff0f6;
   transition: border 0.3s ease;
 }
@@ -89,11 +89,11 @@
   border-radius: 8px;
   cursor: pointer;
   margin-top: 12px;
-  background:#ffffff
+  background:#7ee5e300
 }
 
 .font-toggle-btn:hover{
-  background: linear-gradient(45deg, #ffffff, #fffffff0);
+  background: #7ee5e300
 }
 
 .font-list {
@@ -101,10 +101,12 @@
   top: -60px;
   right: -10px;
   resize: none;
-  background-color: white;
+  font-display:fixed;
+  background: linear-gradient(45deg,#8d7ee5,#ffb3b3);
   border: 1px solid #ccc;
   max-height: 150px;
   overflow-y: scroll;
+  overflow-x: hidden;
   margin-top: 8px;
   padding: 0;
   list-style: none;
@@ -114,10 +116,10 @@
 
 
 .font-list li {
-  padding: 8px;
+  padding: 8px 0px;
   cursor: pointer;
 }
 
 .font-list li:hover {
-  background-color: #f0f0f0;
+  background-color: #f8f6f6f3;
 }

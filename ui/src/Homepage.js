@@ -398,7 +398,7 @@ const Home = (
 
                       <div
                         className="entry-text"
-                        style={{
+                        style={{                         
                           height: "50px",
                           overflow: "hidden",
                           lineHeight: "40px",
@@ -426,6 +426,7 @@ const Home = (
                           title="Delete entry"
                           aria-label={`Delete entry: ${entry.title}`}
                           style={{
+                            borderRadius:"8px",
                             width: "900%", // Full width of container
                             maxWidth: "1500px", // Optional: limit maximum width
                             // padding: "8px 16px", // Optional: adjust padding for better appearance

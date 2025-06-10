@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: row;
   /* Entry & Analysis sections in a row */
-  background: rgb(185, 106, 165);
+  background: linear-gradient(45deg, #332749, #dbd1ff,#c476af);
   border-radius: 12px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
   padding: 20px;
@@ -39,13 +39,13 @@
 .entry-section {
   height: 80vh;
   /* More space for journal entry */
-  background: #bcb0b0;
+  background: #e9d8ff;
 }
 
 .analysis-section {
   height: 80vh;
   /* Allocated space for future insights */
-  background: #eee;
+  background: #e4e4e4;
   color: #000;
 }
 
@@ -90,13 +90,13 @@ h3 {
   margin-top: 20px;
   margin: 20px auto;
   padding: 12px;
-  background: #3498db;
-  color: white;
+  background: linear-gradient(45deg, #c89dff, #ff94a6);
+  color: rgb(0, 0, 0);
   border: none;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 
 .back-button:hover {
-  background: #2980b9;
+  background: linear-gradient(45deg, #a45fff, #ff5e79);
 }

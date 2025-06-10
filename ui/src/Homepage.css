@@ -1,6 +1,6 @@
 /* Homepage.css */
 body {
-  font-family: "Poppins", sans-serif;
+  
   background-color: #f4f6f9;
   height: 100vh;
   margin: 0;
@@ -14,7 +14,7 @@ body {
   height: 100vh;
   width: 100vw;
   background-color: #f4f6f9;
-  font-family: "Poppins", sans-serif;
+  
   position: relative;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@ body {
 .sidebar {
   width: 60px;
   /* Sidebar Dashboard */
-  background: #ffdcc9e8;
+  background: #e7c5dfe8;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -42,9 +42,9 @@ body {
 }
 
 .toggle-btn {
-  background: #ffffff;
+  background: #ffffff00;
   /* Sidebar Toggle Button background color*/
-  color: rgb(0, 77, 73);
+  color: rgb(0, 0, 0);
   padding: 6px;
   border: none;
   font-weight: bold;
@@ -102,8 +102,8 @@ body {
   padding: 2rem;
   border-radius: 0%;
   box-sizing: border-box;
-  background: linear-gradient(45deg, #94d4fc, #b8ffd2, #ffaec5);
-  font-family: 'Comic Neue', cursive, sans-serif;
+  background: linear-gradient(45deg, #332749, #dbd1ff,#c476af);
+  
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -111,6 +111,7 @@ body {
 
 /*heading welcome to my journals*/
 .homepage-content h2 {
+  font-family: 'Comic Neue', cursive, sans-serif;
   text-align: center;
   font-size: 28px;
   color: #4a4a4a;
@@ -127,7 +128,7 @@ body {
 .entry-box button {
   align-self: center;
   background: linear-gradient(45deg, #c89dff, #ff94a6);
-  color: white;
+  color: rgb(0, 0, 0);
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -167,12 +168,12 @@ body {
 }
 
 .entries::-webkit-scrollbar-thumb {
-  background: #b9b9b986;
+  background: #b9b9b91c;
   border-radius: 5px;
 }
 
 .entries::-webkit-scrollbar-track {
-  background: #f4f4f4;
+  background: #f4f4f414;
 }
 
 .entry-title {
@@ -206,6 +207,12 @@ body {
   font-weight: bold;
   margin-left: auto;
   /* Moves time to the right */
+}
+.delete-btn{
+  background: linear-gradient(45deg, #b983ff, #ff8196);
+}
+.delete-btn:hover{
+  background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
 
@@ -243,7 +250,7 @@ li {
   margin: 10px 0;
   border-radius: 8px;
   font-size: 16px;
-  color: #002727;
+  color: #000000;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   border-left: 6px solid #004749;
   transition: transform 0.2s ease-in-out;
