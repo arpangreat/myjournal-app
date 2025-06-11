@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./Analysis.css"; // Make sure this file includes the CSS you shared
+import "./Analysis.css"; 
 
 const Analysis = () => {
   const { id: entryId } = useParams();
@@ -84,41 +84,44 @@ const Analysis = () => {
         <div className="entry-section">
           <h2>Journal Entry</h2>
           <h3>{entry.title}</h3>
-          <p className="entry-content">{entry.text}</p>
+          <div className="entry-content-container">
+            <p className="entry-content">{entry.text}</p>
+          </div>
         </div>
 
         <div className="analysis-section">
           <h2>Mood Analysis</h2>
-          <p>
-            <strong>Sentiment:</strong> {mood.overall_sentiment}
-          </p>
-          <p>
-            <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
-          </p>
-          <p>
-            <strong>Summary:</strong> {mood.summary}
-          </p>
-          <p>
-            <strong>Suggestions:</strong> {mood.suggestions}
-          </p>
+          <div className="analysis-content-container">
+            <p>
+              <strong>Sentiment:</strong> {mood.overall_sentiment}
+            </p>
+            <p>
+              <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
+            </p>
+            <p>
+              <strong>Summary:</strong> {mood.summary}
+            </p>
+            <p>
+              <strong>Suggestions:</strong> {mood.suggestions}
+            </p>
 
-          {mood.emotions.length > 0 && (
-            <>
-              <h3>Detected Emotions</h3>
-              <ul>
-                {mood.emotions.map((e, i) => (
-                  <li key={i}>{e.label}: {(e.score * 100).toFixed(1)}%</li>
-                ))}
-              </ul>
-            </>
-          )}
+            {mood.emotions.length > 0 && (
+              <>
+                <h3>Detected Emotions</h3>
+                <ul>
+                  {mood.emotions.map((e, i) => (
+                    <li key={i}>{e.label}: {(e.score * 100).toFixed(1)}%</li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-          <p>
-            <small>
-              Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
-            </small>
-          </p>
-
+            <p>
+              <small>
+                Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
+              </small>
+            </p>
+          </div>    
           <button className="back-button" onClick={() => navigate("/Homepage")}>
             ← Back to Homepage
           </button>

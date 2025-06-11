@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AddEntry.css";
 
@@ -6,7 +6,103 @@ const AddEntry = ({ onAddEntry }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Add dark mode state that reads from localStorage
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode === 'true';
+  });
   const navigate = useNavigate();
+  
+   // Font selection state
+  const [selectedFont, setSelectedFont] = useState(() => {
+    return localStorage.getItem('userFontPreference') || 'Arial';
+  });
+  const [showFontList, setShowFontList] = useState(false);
+
+  const fonts = [
+    "Arial",
+    "Wide Latin",
+    "Vladimir Script",
+    "Showcard Gothic",
+    "Algerian",
+    "Bradley Hand ITC",
+    "Matura MT Script Capitals",
+    "Broadway",
+    "Bauhaus 93",
+    "Chiller",
+    "Calibri",
+    "Cambria",
+    "Candara",
+    "Comic Sans MS",
+    "Consolas",
+    "Constantia",
+    "Corbel",
+    "Courier New",
+    "Franklin Gothic Medium",
+    "Georgia",
+    "Helvetica",
+    "Impact",
+    "Lucida Console",
+    "Lucida Sans Unicode",
+    "Palatino Linotype",
+    "Segoe UI",
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
+    "Century Gothic",
+    "Garamond",
+    "Bookman Old Style",
+    "Book Antiqua",
+    "Elephant",
+    "Futura",
+    "Gill Sans MT",
+    "Harlow Solid Italic",
+    "Ink Free",
+    "Kristen ITC",
+    "Leelawadee UI",
+    "Magneto",
+    "MV Boli",
+    "Perpetua",
+    "Ravie",
+    "Rockwell",
+    "Showcard Gothic",
+    "Snap ITC",
+    "Stencil",
+    "Tw Cen MT"
+  ];
+
+  // Listen for dark mode changes from localStorage (cross-tab sync)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'darkMode') {
+        setIsDarkMode(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check for changes periodically (in case user changes mode in same tab)
+    const interval = setInterval(() => {
+      const currentDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (currentDarkMode !== isDarkMode) {
+        setIsDarkMode(currentDarkMode);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [isDarkMode]);
+
+  // Function to handle font selection
+  const handleFontSelect = (font) => {
+    setSelectedFont(font);
+    setShowFontList(false);
+    // Save font preference to localStorage
+    localStorage.setItem('userFontPreference', font);
+  };
 
   const handleSubmit = async () => {
     if (!title.trim() || !text.trim()) {
@@ -79,67 +175,8 @@ const AddEntry = ({ onAddEntry }) => {
     navigate("/Homepage");
   };
 
-//changing for font add
-  const [selectedFont, setSelectedFont] = useState("inherit");
-  const [showFontList, setShowFontList] = useState(false);
-
-  const fonts = [
-    "Arial",
-    "Wide Latin",
-    "Vladimir Script",
-    "Showcard Gothic",
-    "Algerian",
-    "Bradley Hand ITC",
-    "Matura MT Script Capitals",
-    "Broadway",
-    "Bauhaus 93",
-    "Chiller",
-    "Calibri",
-    "Cambria",
-    "Candara",
-    "Comic Sans MS",
-    "Consolas",
-    "Constantia",
-    "Corbel",
-    "Courier New",
-    "Franklin Gothic Medium",
-    "Georgia",
-    "Helvetica",
-    "Impact",
-    "Lucida Console",
-    "Lucida Sans Unicode",
-    "Palatino Linotype",
-    "Segoe UI",
-    "Tahoma",
-    "Times New Roman",
-    "Trebuchet MS",
-    "Verdana",
-    "Century Gothic",
-    "Garamond",
-    "Bookman Old Style",
-    "Book Antiqua",
-    "Elephant",
-    "Futura",
-    "Gill Sans MT",
-    "Harlow Solid Italic",
-    "Ink Free",
-    "Kristen ITC",
-    "Leelawadee UI",
-    "Magneto",
-    "MV Boli",
-    "Perpetua",
-    "Ravie",
-    "Rockwell",
-    "Showcard Gothic",
-    "Snap ITC",
-    "Stencil",
-    "Tw Cen MT"
-  ];
-
-
-
   return (
-    <div className="add-entry-page">
+    <div className={`add-entry-page ${isDarkMode ? "dark-mode" : ""}`}>
       <h2>📝 New Journal Entry</h2>
 
 
@@ -147,6 +184,7 @@ const AddEntry = ({ onAddEntry }) => {
         <circle-button
           onClick={() => setShowFontList(!showFontList)}
           className="font-toggle-btn"
+          type="button"
         >
           🎨
         </circle-button>
@@ -155,11 +193,15 @@ const AddEntry = ({ onAddEntry }) => {
             {fonts.map((font) => (
               <li
                 key={font}
-                onClick={() => {
-                  setSelectedFont(font);
-                  setShowFontList(false);
+                onClick={() => handleFontSelect(font)}
+                style={{ 
+                  fontFamily: font,
+                  cursor: 'pointer',
+                  padding: '8px 1px',
+                  borderBottom: '1px solid #eee',
+                  backgroundColor: selectedFont === font ? '#e3f2fd' : 'transparent'
                 }}
-                style={{ fontFamily: font }}
+                className={selectedFont === font ? 'selected-font' : ''}
               >
                 {font}
               </li>
