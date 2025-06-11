@@ -1,20 +1,20 @@
 .privacy-settings-container {
   max-width: 400px;
   min-width: 400px;
-  max-height: 400px;
+  /* max-height: 400px; */
   min-height: 400px;
   margin: 40px auto;
   padding: 30px;
   overflow: hidden;
   line-height: 0px;
-  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  background: linear-gradient(55deg, #332749, #dbd1ff, #c476af);
   border: 2px dashed #794c6b;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Comic Neue', cursive, sans-serif;
   text-align: center;
   resize: none;
-  height: 50px,
+  height: 100px,
 }
 
 /*

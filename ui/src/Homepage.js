@@ -319,7 +319,10 @@ const Home = (
             {user && <p className="user-greeting">Hello, {user.name}! 👋</p>}
             <ul>
               <li>
-                <Link to="/privacy" style={{ textDecoration: "none", color: "inherit" }}>
+                <Link
+                  to="/privacy"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
                   🔒 Privacy Settings
                 </Link>
               </li>
@@ -335,7 +338,10 @@ const Home = (
                 </label>
               </li>
               <li>
-                <Link to="/policy" style={{ textDecoration: "none", color: "inherit" }}>
+                <Link
+                  to="/policy"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
                   📜 Terms & Policy
                 </Link>
               </li>
@@ -343,7 +349,10 @@ const Home = (
                 🚪 Logout
               </li>
               <li>
-                <Link to="/about" style={{ textDecoration: "none", color: "inherit" }}>
+                <Link
+                  to="/about"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
                   ⓘ about
                 </Link>
               </li>
@@ -418,7 +427,7 @@ const Home = (
                           marginBottom: "2px",
                         }}
                       >
-                        {getFirstLineWithEllipsis(entry.text)}
+                        {entry.text}
                       </div>
 
                       <div
@@ -455,16 +464,16 @@ const Home = (
               </div>
             )
             : searchQuery
-              ? (
-                <div className="no-entries">
-                  <p>No entries found matching "{searchQuery}"</p>
-                </div>
-              )
-              : (
-                <div className="no-entries">
-                  <p>No entries yet. Create your first journal entry!</p>
-                </div>
-              )}
+            ? (
+              <div className="no-entries">
+                <p>No entries found matching "{searchQuery}"</p>
+              </div>
+            )
+            : (
+              <div className="no-entries">
+                <p>No entries yet. Create your first journal entry!</p>
+              </div>
+            )}
         </div>
       </main>
 
