@@ -1195,6 +1195,97 @@ func getMoodAnalysisHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(moodAnalysis)
 }
 
+// Get current user's profile
+func getUserProfileHandler(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
+
+	var user User
+	err := db.QueryRow("SELECT id, name, email, created_at FROM users WHERE id = ?", userID).
+		Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Do not expose password
+	user.Password = ""
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
+
+// Update username and/or password
+func updateUserProfileHandler(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
+
+	type UpdateRequest struct {
+		Name            string `json:"name"`
+		CurrentPassword string `json:"currentPassword"`
+		NewPassword     string `json:"newPassword"`
+	}
+
+	var req UpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	updated := false
+
+	// Update name
+	if strings.TrimSpace(req.Name) != "" {
+		_, err := db.Exec("UPDATE users SET name = ? WHERE id = ?", req.Name, userID)
+		if err != nil {
+			http.Error(w, "Failed to update name", http.StatusInternalServerError)
+			return
+		}
+		updated = true
+	}
+
+	// Update password
+	if strings.TrimSpace(req.NewPassword) != "" {
+		if strings.TrimSpace(req.CurrentPassword) == "" {
+			http.Error(w, "Current password is required to change password", http.StatusBadRequest)
+			return
+		}
+
+		// Fetch hashed password from DB
+		var storedHashed string
+		err := db.QueryRow("SELECT password FROM users WHERE id = ?", userID).Scan(&storedHashed)
+		if err != nil {
+			http.Error(w, "Failed to verify current password", http.StatusInternalServerError)
+			return
+		}
+
+		// Verify current password
+		if !checkPassword(req.CurrentPassword, storedHashed) {
+			http.Error(w, "Current password is incorrect", http.StatusUnauthorized)
+			return
+		}
+
+		// Hash new password
+		hashedPassword, err := hashPassword(req.NewPassword)
+		if err != nil {
+			http.Error(w, "Failed to hash new password", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("UPDATE users SET password = ? WHERE id = ?", hashedPassword, userID)
+		if err != nil {
+			http.Error(w, "Failed to update password", http.StatusInternalServerError)
+			return
+		}
+		updated = true
+	}
+
+	if !updated {
+		http.Error(w, "No valid changes provided", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func main() {
 	// Initialize database
 	initDB()
@@ -1214,6 +1305,9 @@ func main() {
 	r.HandleFunc("/api/entries/{id}", authenticateToken(deleteEntryHandler)).Methods("DELETE")
 	r.HandleFunc("/api/entries/{id}/mood", authenticateToken(getMoodAnalysisHandler)).Methods("GET")
 
+	// User profile routes
+	r.HandleFunc("/api/user/profile", authenticateToken(getUserProfileHandler)).Methods("GET")
+	r.HandleFunc("/api/user/profile", authenticateToken(updateUserProfileHandler)).Methods("PUT")
 	// Setup CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173"}, // Add your frontend URLs
