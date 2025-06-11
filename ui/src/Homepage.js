@@ -388,7 +388,11 @@ const Home = (
               <li>
                 <Link
                   to="/privacy"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "block",
+                  }}
                 >
                   🔒 Privacy Settings
                 </Link>
@@ -407,7 +411,11 @@ const Home = (
               <li>
                 <Link
                   to="/policy"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "block",
+                  }}
                 >
                   📜 Terms & Policy
                 </Link>
@@ -418,7 +426,11 @@ const Home = (
               <li>
                 <Link
                   to="/about"
-                  style={{ textDecoration: "none", color: "inherit" }}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "block",
+                  }}
                 >
                   ⓘ about
                 </Link>
