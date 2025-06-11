@@ -106,7 +106,7 @@ const Home = (
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [userFontFamily, setUserFontFamily] = useState("Arial, sans-serif"); // Added missing state
+  const [userFontFamily, setUserFontFamily] = useState(" sans-serif"); // Added missing state
   const navigate = useNavigate();
 
   const { setSelectedEntry } = useJournal();
