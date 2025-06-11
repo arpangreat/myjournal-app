@@ -97,14 +97,24 @@ const Home = (
 ) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Initialize dark mode from localStorage
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode === 'true';
+  });
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [userFontFamily, setUserFontFamily] = useState('Arial, sans-serif'); // Added missing state
   const navigate = useNavigate();
 
   const { setSelectedEntry } = useJournal();
+
+  const getUserFontPreference = () => {
+    const savedFont = localStorage.getItem('userFontPreference');
+    return savedFont || 'Arial, sans-serif';
+  };
 
   // Load user info and entries on component mount
   useEffect(() => {
@@ -120,8 +130,36 @@ const Home = (
       setUser(JSON.parse(userData));
     }
 
+    // Load user's font preference
+    const fontPreference = getUserFontPreference();
+    setUserFontFamily(fontPreference);
+
     loadEntries();
   }, [navigate]);
+
+  // Listen for font preference changes
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'userFontPreference') {
+        setUserFontFamily(e.newValue || 'Arial, sans-serif');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check for changes periodically (in case user changes font in same tab)
+    const interval = setInterval(() => {
+      const currentFont = getUserFontPreference();
+      if (currentFont !== userFontFamily) {
+        setUserFontFamily(currentFont);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [userFontFamily]);
 
   const loadEntries = async () => {
     const token = localStorage.getItem("token");
@@ -168,7 +206,12 @@ const Home = (
   };
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  // Modified toggleDarkMode to save to localStorage
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+  };
 
   //Sidebar auto-collapse
   useEffect(() => {
@@ -192,6 +235,30 @@ const Home = (
       document.removeEventListener("click", handleClickOutside);
     };
   }, [sidebarOpen]);
+
+  //Logout auto-collapse
+    useEffect(() => {
+    if (!logoutConfirm) return;
+
+    const handleClickOutside = (event) => {
+      const modal = document.querySelector(".logout-modal-content");
+
+      // If clicked outside modal content, close the modal
+      if (modal && !modal.contains(event.target)) {
+        setLogoutConfirm(false);
+      }
+    };
+
+    // Add event listener on next tick to avoid interference with modal opening
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [logoutConfirm]);
 
   const handleDeleteEntry = async (index) => {
     const entry = filteredEntries[index]; // Use filteredEntries instead of entries
@@ -381,10 +448,13 @@ const Home = (
                     key={entry.id || `entry-${index}`}
                     className="entry-item"
                     onClick={() => handleEntryClick(entry)}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "default" }}
                   >
                     <div className="entry-header">
-                      <div className="entry-date-wrapper">
+                      <div className="entry-date-wrapper"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ cursor: "default" }}
+                      >
                         <span className="entry-date">
                           {(() => {
                             if (entry.created_at) {
@@ -407,15 +477,48 @@ const Home = (
                         </span>
                       </div>
 
-                      <h4 className="entry-title">{entry.title}</h4>
+                      <h4 className="entry-title" 
+                        style={{ 
+                          cursor: "pointer",
+                          transition: "all 0.3s ease",
+                          borderRadius: "8px",
+                          fontFamily: userFontFamily, // Apply user's font preference
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+                          e.target.style.transform = "translateY(-2px)";
+                          e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "transparent";
+                          e.target.style.transform = "translateY(0)";
+                          e.target.style.boxShadow = "none";
+                        }}
+                      >
+                        {entry.title}
+                      </h4>
 
                       <div
                         className="entry-text"
                         style={{
+                          cursor: "pointer",                     
                           height: "50px",
                           overflow: "hidden",
                           lineHeight: "40px",
                           marginBottom: "2px",
+                          transition: "all 0.3s ease",
+                          borderRadius: "8px",
+                          fontFamily: userFontFamily, // Apply user's font preference
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+                          e.target.style.transform = "translateY(-2px)";
+                          e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "transparent";
+                          e.target.style.transform = "translateY(0)";
+                          e.target.style.boxShadow = "none";
                         }}
                       >
                         {getFirstLineWithEllipsis(entry.text)}
@@ -470,7 +573,9 @@ const Home = (
 
       {logoutConfirm && (
         <div className="logout-modal">
-          <div className="logout-modal-content">
+          <div className="logout-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3>Logout Confirmation</h3>
             <p>Are you sure you want to logout?</p>
             <div className="logout-modal-actions">

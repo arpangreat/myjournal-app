@@ -79,12 +79,48 @@ h3 {
   color: #000000;
 }
 
+.entry-content-container {
+  max-height: 400px; /* Adjust height as needed */
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 16px;
+}
+
 .entry-content {
   font-size: 1.1rem;
   color: #000;
-  line-height: 1.5;
-  white-space: pre-line;
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
   /* Ensures line breaks are respected */
+}
+
+.analysis-content-container {
+  max-height: 400px; /* Adjust height as needed */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  padding-right: 8px;
+  margin-bottom: 16px;
+}
+
+.analysis-content-container p,
+.analysis-content-container ul,
+.analysis-content-container h3 {
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.analysis-content-container ul {
+  padding-left: 1px;
+}
+
+.analysis-content-container li {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .back-button {
