@@ -318,7 +318,11 @@ const Home = (
             <h2>Dashboard</h2>
             {user && <p className="user-greeting">Hello, {user.name}! 👋</p>}
             <ul>
-              <li>🔒 Privacy Settings</li>
+              <li>
+                <Link to="/privacy" style={{ textDecoration: "none", color: "inherit" }}>
+                  🔒 Privacy Settings
+                </Link>
+              </li>
               <li className="dark-mode-toggle">
                 🌙 Dark Mode
                 <label className="switch">
@@ -330,9 +334,18 @@ const Home = (
                   <span className="slider"></span>
                 </label>
               </li>
-              <li>📜 Terms & Policy</li>
+              <li>
+                <Link to="/policy" style={{ textDecoration: "none", color: "inherit" }}>
+                  📜 Terms & Policy
+                </Link>
+              </li>
               <li onClick={handleLogoutClick} style={{ cursor: "pointer" }}>
                 🚪 Logout
+              </li>
+              <li>
+                <Link to="/about" style={{ textDecoration: "none", color: "inherit" }}>
+                  ⓘ about
+                </Link>
               </li>
             </ul>
           </div>
@@ -398,7 +411,7 @@ const Home = (
 
                       <div
                         className="entry-text"
-                        style={{                         
+                        style={{
                           height: "50px",
                           overflow: "hidden",
                           lineHeight: "40px",
@@ -426,7 +439,7 @@ const Home = (
                           title="Delete entry"
                           aria-label={`Delete entry: ${entry.title}`}
                           style={{
-                            borderRadius:"8px",
+                            borderRadius: "8px",
                             width: "900%", // Full width of container
                             maxWidth: "1500px", // Optional: limit maximum width
                             // padding: "8px 16px", // Optional: adjust padding for better appearance
@@ -442,16 +455,16 @@ const Home = (
               </div>
             )
             : searchQuery
-            ? (
-              <div className="no-entries">
-                <p>No entries found matching "{searchQuery}"</p>
-              </div>
-            )
-            : (
-              <div className="no-entries">
-                <p>No entries yet. Create your first journal entry!</p>
-              </div>
-            )}
+              ? (
+                <div className="no-entries">
+                  <p>No entries found matching "{searchQuery}"</p>
+                </div>
+              )
+              : (
+                <div className="no-entries">
+                  <p>No entries yet. Create your first journal entry!</p>
+                </div>
+              )}
         </div>
       </main>
 

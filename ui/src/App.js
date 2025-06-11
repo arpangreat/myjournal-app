@@ -5,6 +5,12 @@ import "./App.css";
 import AddEntry from "./AddEntry";
 import { authAPI, entriesAPI, handleAPIError } from "./api";
 
+import Policy from "./Policy"; // adjust path if needed// for terms and policy
+
+import PrivacySettings from "./PrivacySettings";
+
+import About from './About'; 
+
 import { JournalProvider } from "./context/JournalContext";
 import Analysis from "./Analysis";
 
@@ -182,6 +188,16 @@ const AppContent = () => {
 
   return (
     <Routes>
+
+      <Route path="/" element={<Homepage />} /> 
+      <Route path="/policy" element={<Policy />} />
+      {/* Other routes... */}
+
+      <Route path="/privacy" element={<PrivacySettings />} />
+
+      <Route path="/" element={<Homepage />} />
+      <Route path="/about" element={<About />} />
+
       <Route path="/" element={<AuthPage />} />
       <Route path="/login" element={<AuthPage />} />
       <Route

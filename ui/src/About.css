@@ -1,0 +1,20 @@
+/* src/About.css */
+.about-container {
+  padding: 2rem;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  min-height: 100vh;
+}
+
+.about-container h1 {
+  
+  font-size: 2rem;
+  color: rgb(182, 73, 73);
+  margin-bottom: 1rem;
+}
+
+.about-container p {
+  color: black;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}

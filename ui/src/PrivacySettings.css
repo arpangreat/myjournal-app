@@ -1,0 +1,82 @@
+.privacy-settings-container {
+  max-width: 400px;
+  min-width: 400px;
+  max-height: 400px;
+  min-height: 400px;
+  margin: 40px auto;
+  padding: 30px;
+  overflow: hidden;
+  line-height: 0px;
+  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  border: 2px dashed #794c6b;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Comic Neue', cursive, sans-serif;
+  text-align: center;
+  resize: none;
+  height: 50px,
+}
+
+/*
+.privacy-settings-container::-webkit-scrollbar{
+  width: 5px;
+  height: 5px;
+}
+.privacy-settings-container::-webkit-scrollbar-thumb{
+  background: #b9b9b91c;
+  border-radius: 5px;
+}
+.privacy-settings-container::-webkit-scrollbar-track{
+    background: #000000;
+}
+    NOt WORKING, I'LL DO IT LATER
+*/
+
+
+
+.settings-title {
+  font-family: 'Comic Neue', cursive, sans-serif;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #ffffff;
+}
+
+.settings-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: #000000;
+}
+
+.settings-input {
+  width: 100%;
+  padding: 9px 0px;
+  font-size: 16px;
+  border: 1px solid #8b8888cf;
+  border-radius: 10px;
+  transition: border 0.2s;
+}
+
+.settings-input:focus {
+  border-color: #2e5276;
+  outline: none;
+}
+
+.save-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-button:hover {
+  background-color: #0056b3;
+}
