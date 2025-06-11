@@ -99,21 +99,21 @@ const Home = (
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   // Initialize dark mode from localStorage
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    return savedDarkMode === 'true';
+    const savedDarkMode = localStorage.getItem("darkMode");
+    return savedDarkMode === "true";
   });
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [userFontFamily, setUserFontFamily] = useState('Arial, sans-serif'); // Added missing state
+  const [userFontFamily, setUserFontFamily] = useState("Arial, sans-serif"); // Added missing state
   const navigate = useNavigate();
 
   const { setSelectedEntry } = useJournal();
 
   const getUserFontPreference = () => {
-    const savedFont = localStorage.getItem('userFontPreference');
-    return savedFont || 'Arial, sans-serif';
+    const savedFont = localStorage.getItem("userFontPreference");
+    return savedFont || "Arial, sans-serif";
   };
 
   // Load user info and entries on component mount
@@ -140,13 +140,13 @@ const Home = (
   // Listen for font preference changes
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'userFontPreference') {
-        setUserFontFamily(e.newValue || 'Arial, sans-serif');
+      if (e.key === "userFontPreference") {
+        setUserFontFamily(e.newValue || "Arial, sans-serif");
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+
     // Also check for changes periodically (in case user changes font in same tab)
     const interval = setInterval(() => {
       const currentFont = getUserFontPreference();
@@ -156,7 +156,7 @@ const Home = (
     }, 1000);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
   }, [userFontFamily]);
@@ -210,7 +210,7 @@ const Home = (
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
+    localStorage.setItem("darkMode", newDarkMode.toString());
   };
 
   //Sidebar auto-collapse
@@ -237,7 +237,7 @@ const Home = (
   }, [sidebarOpen]);
 
   //Logout auto-collapse
-    useEffect(() => {
+  useEffect(() => {
     if (!logoutConfirm) return;
 
     const handleClickOutside = (event) => {
@@ -460,7 +460,8 @@ const Home = (
                     style={{ cursor: "default" }}
                   >
                     <div className="entry-header">
-                      <div className="entry-date-wrapper"
+                      <div
+                        className="entry-date-wrapper"
                         onClick={(e) => e.stopPropagation()}
                         style={{ cursor: "default" }}
                       >
@@ -486,8 +487,9 @@ const Home = (
                         </span>
                       </div>
 
-                      <h4 className="entry-title" 
-                        style={{ 
+                      <h4
+                        className="entry-title"
+                        style={{
                           cursor: "pointer",
                           transition: "all 0.3s ease",
                           borderRadius: "8px",
@@ -496,7 +498,8 @@ const Home = (
                         onMouseEnter={(e) => {
                           e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
                           e.target.style.transform = "translateY(-2px)";
-                          e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.15)";
+                          e.target.style.boxShadow =
+                            "0 4px 8px rgba(0, 0, 0, 0.15)";
                         }}
                         onMouseLeave={(e) => {
                           e.target.style.backgroundColor = "transparent";
@@ -510,7 +513,7 @@ const Home = (
                       <div
                         className="entry-text"
                         style={{
-                          cursor: "pointer",                     
+                          cursor: "pointer",
                           height: "50px",
                           overflow: "hidden",
                           lineHeight: "40px",
@@ -522,7 +525,8 @@ const Home = (
                         onMouseEnter={(e) => {
                           e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
                           e.target.style.transform = "translateY(-2px)";
-                          e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.15)";
+                          e.target.style.boxShadow =
+                            "0 4px 8px rgba(0, 0, 0, 0.15)";
                         }}
                         onMouseLeave={(e) => {
                           e.target.style.backgroundColor = "transparent";
@@ -530,7 +534,7 @@ const Home = (
                           e.target.style.boxShadow = "none";
                         }}
                       >
-                        {entry.text}
+                        {getFirstLineWithEllipsis(entry.text)}
                       </div>
 
                       <div
@@ -582,7 +586,8 @@ const Home = (
 
       {logoutConfirm && (
         <div className="logout-modal">
-          <div className="logout-modal-content"
+          <div
+            className="logout-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             <h3>Logout Confirmation</h3>
