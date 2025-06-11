@@ -195,11 +195,7 @@ const AddEntry = ({ onAddEntry }) => {
                 key={font}
                 onClick={() => handleFontSelect(font)}
                 style={{ 
-                  fontFamily: font,
-                  cursor: 'pointer',
-                  padding: '8px 1px',
-                  borderBottom: '1px solid #eee',
-                  backgroundColor: selectedFont === font ? '#e3f2fd' : 'transparent'
+                  fontFamily: font
                 }}
                 className={selectedFont === font ? 'selected-font' : ''}
               >

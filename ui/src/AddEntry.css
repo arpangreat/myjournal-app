@@ -67,10 +67,10 @@
   cursor: pointer;
   margin-top: 12px;
   transition: background-color 0.3s ease;
-  background: linear-gradient(45deg, #64f9f6, #d568a6);
+  background: linear-gradient(45deg, #56fffc, #d568a6);
 }
 .cancel-btn:hover{
-  background: linear-gradient(45deg, #2cddda, #e42893f0);
+  background: linear-gradient(45deg, #21bab7, #e42893f0);
 }
 
 .font-selector {
@@ -103,23 +103,35 @@
   resize: none;
   font-display:fixed;
   background: linear-gradient(45deg,#8d7ee5,#ffb3b3);
-  border: 1px solid #ccc;
+  border-radius: 7px;
+  border: 1px solid #cccccc83;
   max-height: 150px;
   overflow-y: scroll;
   overflow-x: hidden;
   margin-top: 8px;
   padding: 0;
-  list-style: none;
+  list-style:none;
   width: 200px;
   z-index: 10;
+}
+.font-list::-webkit-scrollbar{
+  width:2px;
+  background-color: #fafafa00;
+  border-radius: 7px;
+}
+.font-list::-webkit-scrollbar-thumb{
+  width:2px;
+  background-color: #d5d1d17f;
+  border-radius: 7px;
 }
 
 
 .font-list li {
   padding: 8px 0px;
+  color: #000000;
   cursor: pointer;
 }
 
 .font-list li:hover {
-  background-color: #f8f6f6f3;
+  background-color: #f0e6e65a;
 }
