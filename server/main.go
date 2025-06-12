@@ -3,14 +3,18 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -85,6 +89,44 @@ type MoodResult struct {
 type EmotionResult struct {
 	Label string  `json:"label"`
 	Score float64 `json:"score"`
+}
+
+// Vector embedding for entries
+type EntryEmbedding struct {
+	ID        int       `json:"id"`
+	EntryID   int       `json:"entry_id"`
+	UserID    int       `json:"user_id"`
+	Embedding []float64 `json:"embedding"`
+	TextHash  string    `json:"text_hash"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// Similar entry for RAG context
+type SimilarEntry struct {
+	Entry      Entry       `json:"entry"`
+	Similarity float64     `json:"similarity"`
+	MoodResult *MoodResult `json:"mood_result,omitempty"`
+}
+
+// RAG Context for analysis
+type RAGContext struct {
+	SimilarEntries []SimilarEntry `json:"similar_entries"`
+	UserPatterns   UserPatterns   `json:"user_patterns"`
+}
+
+// User mood patterns
+type UserPatterns struct {
+	CommonEmotions   []EmotionResult  `json:"common_emotions"`
+	SentimentTrends  []SentimentTrend `json:"sentiment_trends"`
+	TriggerKeywords  []string         `json:"trigger_keywords"`
+	CopingStrategies []string         `json:"coping_strategies"`
+}
+
+type SentimentTrend struct {
+	Period    string  `json:"period"`
+	Sentiment string  `json:"sentiment"`
+	Score     float64 `json:"score"`
+	Count     int     `json:"count"`
 }
 
 // Hugging Face API response structures
@@ -165,6 +207,23 @@ var migrations = []Migration{
 			analyzed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE
 		);`,
+	},
+	Migration{
+		Version: 4,
+		Name:    "create_embeddings_table",
+		SQL: `
+	CREATE TABLE IF NOT EXISTS entry_embeddings (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		entry_id INTEGER NOT NULL,
+		user_id INTEGER NOT NULL,
+		embedding TEXT NOT NULL, -- JSON string of float64 array
+		text_hash TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE,
+		FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+	);
+	CREATE INDEX IF NOT EXISTS idx_embeddings_user_id ON entry_embeddings(user_id);
+	CREATE INDEX IF NOT EXISTS idx_embeddings_entry_id ON entry_embeddings(entry_id);`,
 	},
 }
 
@@ -1067,6 +1126,491 @@ func createEntryHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(entry)
 }
 
+// Text preprocessing for better embeddings
+func preprocessText(text string) string {
+	// Convert to lowercase
+	text = strings.ToLower(text)
+
+	// Remove extra whitespace
+	text = strings.TrimSpace(text)
+
+	// Simple tokenization and cleaning
+	words := strings.Fields(text)
+	var cleanWords []string
+
+	for _, word := range words {
+		// Remove punctuation
+		word = strings.Trim(word, ".,!?;:\"'()[]{}...")
+		if len(word) > 2 { // Keep words longer than 2 characters
+			cleanWords = append(cleanWords, word)
+		}
+	}
+
+	return strings.Join(cleanWords, " ")
+}
+
+// Generate text hash for duplicate detection
+func generateTextHash(text string) string {
+	hash := sha256.Sum256([]byte(preprocessText(text)))
+	return hex.EncodeToString(hash[:])
+}
+
+// Simple TF-IDF based embedding (fallback if Hugging Face fails)
+func generateSimpleEmbedding(text string) []float64 {
+	text = preprocessText(text)
+	words := strings.Fields(text)
+
+	// Create a simple word frequency vector
+	wordFreq := make(map[string]int)
+	for _, word := range words {
+		wordFreq[word]++
+	}
+
+	// Convert to fixed-size vector (384 dimensions to match sentence-transformers)
+	embedding := make([]float64, 384)
+
+	// Simple hash-based positioning
+	for word, freq := range wordFreq {
+		hash := sha256.Sum256([]byte(word))
+		for i := 0; i < 384; i += 32 {
+			idx := int(hash[i%32]) % 384
+			embedding[idx] += float64(freq) * 0.1
+		}
+	}
+
+	// Normalize the vector
+	var norm float64
+	for _, val := range embedding {
+		norm += val * val
+	}
+	norm = math.Sqrt(norm)
+
+	if norm > 0 {
+		for i := range embedding {
+			embedding[i] /= norm
+		}
+	}
+
+	return embedding
+}
+
+// Generate embedding using Hugging Face sentence-transformers
+func generateEmbedding(text string) ([]float64, error) {
+	model := "BAAI/bge-small-en-v1.5"
+
+	response, err := callHuggingFaceAPI(model, text)
+	if err != nil {
+		// Fallback to simple embedding
+		log.Printf("Hugging Face embedding failed, using fallback: %v", err)
+		return generateSimpleEmbedding(text), nil
+	}
+
+	// Parse embedding response
+	var embedding []float64
+	if err := json.Unmarshal(response, &embedding); err != nil {
+		// Try nested array format
+		var nestedEmbedding [][]float64
+		if err := json.Unmarshal(response, &nestedEmbedding); err == nil && len(nestedEmbedding) > 0 {
+			embedding = nestedEmbedding[0]
+		} else {
+			log.Printf("Failed to parse embedding response, using fallback: %v", err)
+			return generateSimpleEmbedding(text), nil
+		}
+	}
+
+	return embedding, nil
+}
+
+// Calculate cosine similarity between two vectors
+func cosineSimilarity(a, b []float64) float64 {
+	if len(a) != len(b) {
+		return 0.0
+	}
+
+	var dotProduct, normA, normB float64
+
+	for i := range a {
+		dotProduct += a[i] * b[i]
+		normA += a[i] * a[i]
+		normB += b[i] * b[i]
+	}
+
+	if normA == 0 || normB == 0 {
+		return 0.0
+	}
+
+	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
+}
+
+// Save entry embedding to database
+func saveEntryEmbedding(entryID, userID int, text string, embedding []float64) error {
+	textHash := generateTextHash(text)
+	embeddingJSON, err := json.Marshal(embedding)
+	if err != nil {
+		return err
+	}
+
+	// Check if embedding already exists
+	var existingID int
+	err = db.QueryRow("SELECT id FROM entry_embeddings WHERE entry_id = ?", entryID).Scan(&existingID)
+
+	if err == sql.ErrNoRows {
+		// Insert new embedding
+		_, err = db.Exec(`
+			INSERT INTO entry_embeddings (entry_id, user_id, embedding, text_hash)
+			VALUES (?, ?, ?, ?)`,
+			entryID, userID, string(embeddingJSON), textHash)
+	} else if err == nil {
+		// Update existing embedding
+		_, err = db.Exec(`
+			UPDATE entry_embeddings SET embedding = ?, text_hash = ?
+			WHERE id = ?`,
+			string(embeddingJSON), textHash, existingID)
+	}
+
+	return err
+}
+
+// Find similar entries using vector similarity
+func findSimilarEntries(userID int, queryEmbedding []float64, limit int) ([]SimilarEntry, error) {
+	rows, err := db.Query(`
+		SELECT ee.entry_id, ee.embedding, e.title, e.text, e.date, e.created_at
+		FROM entry_embeddings ee
+		JOIN entries e ON ee.entry_id = e.id
+		WHERE ee.user_id = ?
+		ORDER BY e.created_at DESC`,
+		userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var candidates []SimilarEntry
+
+	for rows.Next() {
+		var entryID int
+		var embeddingJSON string
+		var entry Entry
+
+		err := rows.Scan(&entryID, &embeddingJSON, &entry.Title, &entry.Text, &entry.Date, &entry.CreatedAt)
+		if err != nil {
+			continue
+		}
+
+		// Parse embedding
+		var embedding []float64
+		if err := json.Unmarshal([]byte(embeddingJSON), &embedding); err != nil {
+			continue
+		}
+
+		// Calculate similarity
+		similarity := cosineSimilarity(queryEmbedding, embedding)
+
+		entry.ID = entryID
+		entry.UserID = userID
+
+		// Get mood analysis if available
+		moodAnalysis, _ := getMoodAnalysis(entryID)
+
+		candidates = append(candidates, SimilarEntry{
+			Entry:      entry,
+			Similarity: similarity,
+			MoodResult: moodAnalysis,
+		})
+	}
+
+	// Sort by similarity (descending)
+	sort.Slice(candidates, func(i, j int) bool {
+		return candidates[i].Similarity > candidates[j].Similarity
+	})
+
+	// Return top results
+	if len(candidates) > limit {
+		candidates = candidates[:limit]
+	}
+
+	return candidates, nil
+}
+
+// Analyze user patterns from historical data
+func analyzeUserPatterns(userID int) (*UserPatterns, error) {
+	// Get user's mood analysis history
+	rows, err := db.Query(`
+		SELECT ma.overall_sentiment, ma.sentiment_score, ma.emotions, ma.analyzed_at
+		FROM mood_analysis ma
+		JOIN entries e ON ma.entry_id = e.id
+		WHERE e.user_id = ?
+		ORDER BY ma.analyzed_at DESC
+		LIMIT 50`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var patterns UserPatterns
+	emotionFreq := make(map[string]int)
+	sentimentCounts := make(map[string]int)
+	var totalScore float64
+	var count int
+
+	for rows.Next() {
+		var sentiment string
+		var score float64
+		var emotionsJSON string
+		var analyzedAt time.Time
+
+		if err := rows.Scan(&sentiment, &score, &emotionsJSON, &analyzedAt); err != nil {
+			continue
+		}
+
+		// Count sentiments
+		sentimentCounts[sentiment]++
+		totalScore += score
+		count++
+
+		// Parse emotions
+		var emotions []EmotionResult
+		if err := json.Unmarshal([]byte(emotionsJSON), &emotions); err == nil {
+			for _, emotion := range emotions {
+				if emotion.Score > 0.3 { // Only count significant emotions
+					emotionFreq[emotion.Label]++
+				}
+			}
+		}
+	}
+
+	// Build common emotions
+	type emotionCount struct {
+		emotion string
+		count   int
+	}
+	var emotionCounts []emotionCount
+	for emotion, count := range emotionFreq {
+		emotionCounts = append(emotionCounts, emotionCount{emotion, count})
+	}
+	sort.Slice(emotionCounts, func(i, j int) bool {
+		return emotionCounts[i].count > emotionCounts[j].count
+	})
+
+	for i, ec := range emotionCounts {
+		if i >= 5 { // Top 5 emotions
+			break
+		}
+		patterns.CommonEmotions = append(patterns.CommonEmotions, EmotionResult{
+			Label: ec.emotion,
+			Score: float64(ec.count) / float64(count),
+		})
+	}
+
+	// Build coping strategies based on patterns
+	patterns.CopingStrategies = generateCopingStrategies(patterns.CommonEmotions)
+
+	return &patterns, nil
+}
+
+// Generate personalized coping strategies
+func generateCopingStrategies(commonEmotions []EmotionResult) []string {
+	strategies := []string{}
+
+	for _, emotion := range commonEmotions {
+		switch strings.ToLower(emotion.Label) {
+		case "anxiety", "fear":
+			strategies = append(strategies, "Practice deep breathing exercises when feeling anxious")
+		case "sadness":
+			strategies = append(strategies, "Engage in activities that bring you joy, like listening to music")
+		case "anger":
+			strategies = append(strategies, "Try physical exercise or journaling to release tension")
+		case "joy", "happiness":
+			strategies = append(strategies, "Continue doing activities that bring you happiness")
+		}
+	}
+
+	if len(strategies) == 0 {
+		strategies = append(strategies, "Practice mindfulness and self-reflection through journaling")
+	}
+
+	return strategies
+}
+
+// Enhanced mood analysis with RAG context
+func performRAGMoodAnalysis(userID int, text string) (*MoodResult, error) {
+	// Generate embedding for current text
+	embedding, err := generateEmbedding(text)
+	if err != nil {
+		log.Printf("Failed to generate embedding: %v", err)
+		// Fallback to original analysis
+		return performMoodAnalysis(text)
+	}
+
+	// Find similar entries
+	similarEntries, err := findSimilarEntries(userID, embedding, 3)
+	if err != nil {
+		log.Printf("Failed to find similar entries: %v", err)
+		// Fallback to original analysis
+		return performMoodAnalysis(text)
+	}
+
+	// Analyze user patterns
+	patterns, err := analyzeUserPatterns(userID)
+	if err != nil {
+		log.Printf("Failed to analyze user patterns: %v", err)
+		patterns = &UserPatterns{}
+	}
+
+	// Perform basic sentiment and emotion analysis
+	sentiment, score, err := analyzeSentiment(text)
+	if err != nil {
+		log.Printf("Sentiment analysis failed: %v", err)
+		sentiment = "neutral"
+		score = 0
+	}
+
+	emotions, err := analyzeEmotions(text)
+	if err != nil {
+		log.Printf("Emotion analysis failed: %v", err)
+		emotions = []EmotionResult{}
+	}
+
+	// Generate enhanced summary with RAG context
+	summary := generateRAGMoodSummary(sentiment, emotions, similarEntries, patterns)
+
+	// Generate personalized suggestions
+	suggestions := generateRAGSuggestions(text, similarEntries, patterns)
+
+	return &MoodResult{
+		OverallSentiment: sentiment,
+		SentimentScore:   score,
+		Emotions:         emotions,
+		Summary:          summary,
+		Suggestions:      suggestions,
+		AnalyzedAt:       time.Now(),
+	}, nil
+}
+
+// Generate enhanced mood summary with RAG context
+func generateRAGMoodSummary(sentiment string, emotions []EmotionResult, similarEntries []SimilarEntry, patterns *UserPatterns) string {
+	var summary strings.Builder
+
+	summary.WriteString(fmt.Sprintf("Overall sentiment: %s. ", strings.Title(sentiment)))
+
+	if len(emotions) > 0 {
+		var topEmotion EmotionResult
+		for _, emotion := range emotions {
+			if emotion.Score > topEmotion.Score {
+				topEmotion = emotion
+			}
+		}
+
+		if topEmotion.Score > 0.3 {
+			summary.WriteString(fmt.Sprintf("Primary emotion: %s (%.1f%% confidence). ",
+				strings.Title(topEmotion.Label), topEmotion.Score*100))
+		}
+	}
+
+	// Add pattern-based insights
+	if len(patterns.CommonEmotions) > 0 {
+		for _, emotion := range emotions {
+			for _, commonEmotion := range patterns.CommonEmotions {
+				if strings.EqualFold(emotion.Label, commonEmotion.Label) {
+					summary.WriteString(fmt.Sprintf("This aligns with your typical %s patterns. ",
+						emotion.Label))
+					break
+				}
+			}
+		}
+	}
+
+	// Add context from similar entries
+	if len(similarEntries) > 0 && similarEntries[0].Similarity > 0.7 {
+		summary.WriteString("This entry is similar to previous experiences you've written about. ")
+	}
+
+	return summary.String()
+}
+
+// Generate personalized suggestions using RAG
+func generateRAGSuggestions(text string, similarEntries []SimilarEntry, patterns *UserPatterns) string {
+	// 1. Try generating a fresh AI suggestion
+	if suggestion, err := generateAISuggestions(text); err == nil && suggestion != "" {
+		log.Printf("Generated fresh RAG suggestion")
+		return suggestion
+	} else {
+		log.Printf("Failed to generate AI suggestion: %v", err)
+	}
+
+	// 2. Fallback: Check for any useful past suggestion in similar entries
+	for _, similar := range similarEntries {
+		if similar.Similarity > 0.6 && similar.MoodResult != nil && similar.MoodResult.Suggestions != "" {
+			return fmt.Sprintf("Previously, you found this helpful: %s", similar.MoodResult.Suggestions)
+		}
+	}
+
+	// 3. Fallback: Use first available coping strategy
+	if len(patterns.CopingStrategies) > 0 {
+		return patterns.CopingStrategies[0]
+	}
+
+	// 4. Final fallback
+	return generateContextAwareSuggestion(text, similarEntries)
+}
+
+func generateContextAwareSuggestion(text string, similarEntries []SimilarEntry) string {
+	lowerText := strings.ToLower(text)
+
+	// Check for recurring themes in similar entries
+	if len(similarEntries) > 0 {
+		commonThemes := extractCommonThemes(similarEntries)
+		if len(commonThemes) > 0 {
+			return fmt.Sprintf("I notice this is a recurring theme for you. Consider focusing on %s as a way to address these feelings.", commonThemes[0])
+		}
+	}
+
+	// Enhanced keyword-based suggestions
+	if strings.Contains(lowerText, "overwhelmed") || strings.Contains(lowerText, "too much") {
+		return "Break down your tasks into smaller, manageable steps. Focus on completing just one thing at a time."
+	}
+
+	if strings.Contains(lowerText, "grateful") || strings.Contains(lowerText, "thankful") {
+		return "Continue cultivating gratitude! Consider keeping a daily gratitude practice to maintain this positive mindset."
+	}
+
+	// Default fallback
+	return generateFallbackSuggestion(text)
+}
+
+func extractCommonThemes(entries []SimilarEntry) []string {
+	// Simple theme extraction based on common words
+	wordCount := make(map[string]int)
+
+	for _, entry := range entries {
+		words := strings.Fields(strings.ToLower(entry.Entry.Text))
+		for _, word := range words {
+			if len(word) > 4 && !isCommonWord(word) { // Skip short and common words
+				wordCount[word]++
+			}
+		}
+	}
+
+	// Find most common meaningful words
+	var themes []string
+	for word, count := range wordCount {
+		if count >= 2 { // Appears in at least 2 entries
+			themes = append(themes, word)
+		}
+	}
+
+	return themes
+}
+
+func isCommonWord(word string) bool {
+	commonWords := map[string]bool{
+		"that": true, "this": true, "with": true, "have": true, "will": true,
+		"been": true, "were": true, "said": true, "each": true, "which": true,
+		"their": true, "time": true, "would": true, "there": true, "could": true,
+	}
+	return commonWords[word]
+}
+
 func updateEntryHandler(w http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
 	vars := mux.Vars(r)
@@ -1286,6 +1830,74 @@ func updateUserProfileHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// Update createEntryHandler to use RAG analysis
+func createEntryHandlerWithRAG(w http.ResponseWriter, r *http.Request) {
+	userID, _ := strconv.Atoi(r.Header.Get("X-User-ID"))
+
+	var entry Entry
+	if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	if entry.Title == "" || entry.Text == "" {
+		http.Error(w, "Title and text are required", http.StatusBadRequest)
+		return
+	}
+
+	// Set date if not provided
+	if entry.Date == "" {
+		entry.Date = time.Now().Format("1/2/2006")
+	}
+
+	// Insert entry
+	result, err := db.Exec("INSERT INTO entries (user_id, title, text, date) VALUES (?, ?, ?, ?)",
+		userID, entry.Title, entry.Text, entry.Date)
+	if err != nil {
+		http.Error(w, "Failed to create entry", http.StatusInternalServerError)
+		return
+	}
+
+	entryID, _ := result.LastInsertId()
+
+	// Get the created entry with created_at timestamp
+	err = db.QueryRow("SELECT id, title, text, date, created_at FROM entries WHERE id = ?", entryID).
+		Scan(&entry.ID, &entry.Title, &entry.Text, &entry.Date, &entry.CreatedAt)
+	if err != nil {
+		http.Error(w, "Failed to retrieve created entry", http.StatusInternalServerError)
+		return
+	}
+	entry.UserID = userID
+
+	// Perform RAG-enhanced mood analysis in background
+	go func() {
+		combinedText := entry.Title + " " + entry.Text
+
+		// Generate and save embedding
+		if embedding, err := generateEmbedding(combinedText); err == nil {
+			if err := saveEntryEmbedding(int(entryID), userID, combinedText, embedding); err != nil {
+				log.Printf("Failed to save embedding for entry %d: %v", entryID, err)
+			}
+		}
+
+		// Perform RAG-enhanced mood analysis
+		if moodResult, err := performRAGMoodAnalysis(userID, combinedText); err == nil {
+			if err := saveMoodAnalysis(int(entryID), moodResult); err != nil {
+				log.Printf("Failed to save mood analysis for entry %d: %v", entryID, err)
+			} else {
+				log.Printf("RAG mood analysis completed for entry %d", entryID)
+			}
+		} else {
+			log.Printf("Failed to perform RAG mood analysis for entry %d: %v", entryID, err)
+		}
+	}()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(entry)
+}
+
 func main() {
 	// Initialize database
 	initDB()
@@ -1300,7 +1912,8 @@ func main() {
 
 	// Protected entry routes
 	r.HandleFunc("/api/entries", authenticateToken(getEntriesHandler)).Methods("GET")
-	r.HandleFunc("/api/entries", authenticateToken(createEntryHandler)).Methods("POST")
+	// r.HandleFunc("/api/entries", authenticateToken(createEntryHandler)).Methods("POST")
+	r.HandleFunc("/api/entries", authenticateToken(createEntryHandlerWithRAG)).Methods("POST")
 	r.HandleFunc("/api/entries/{id}", authenticateToken(updateEntryHandler)).Methods("PUT")
 	r.HandleFunc("/api/entries/{id}", authenticateToken(deleteEntryHandler)).Methods("DELETE")
 	r.HandleFunc("/api/entries/{id}/mood", authenticateToken(getMoodAnalysisHandler)).Methods("GET")
