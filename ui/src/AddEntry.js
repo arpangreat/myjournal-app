@@ -96,6 +96,20 @@ const AddEntry = ({ onAddEntry }) => {
     };
   }, [isDarkMode]);
 
+  // Apply dark mode styles to document body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    
+    // Cleanup when component unmounts
+    return () => {
+      document.body.classList.remove('dark-mode');
+    };
+  }, [isDarkMode]);
+
   // Function to handle font selection
   const handleFontSelect = (font) => {
     setSelectedFont(font);

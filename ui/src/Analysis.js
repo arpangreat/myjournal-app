@@ -11,6 +11,50 @@ const Analysis = () => {
   const [mood, setMood] = useState(null);
   const [error, setError] = useState("");
 
+  // Add dark mode state that reads from localStorage
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode === 'true';
+  });
+  
+  // Listen for dark mode changes from localStorage (cross-tab sync)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'darkMode') {
+        setIsDarkMode(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check for changes periodically (in case user changes mode in same tab)
+    const interval = setInterval(() => {
+      const currentDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (currentDarkMode !== isDarkMode) {
+        setIsDarkMode(currentDarkMode);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [isDarkMode]);
+
+  // Apply dark mode styles to document body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    
+    // Cleanup when component unmounts
+    return () => {
+      document.body.classList.remove('dark-mode');
+    };
+  }, [isDarkMode]);
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -65,8 +109,10 @@ const Analysis = () => {
 
   if (error) {
     return (
-      <div className="content-box">
-        <h2>Error: {error}</h2>
+      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+        <div className="content-box">
+          <h2>Error: {error}</h2>
+        </div> 
       </div>
     );
   }
@@ -79,55 +125,57 @@ const Analysis = () => {
   }
 
   return (
-    <div className="content-box">
-      <div className="inner-container">
-        <div className="entry-section">
-          <h2>Journal Entry</h2>
-          <h3>{entry.title}</h3>
-          <div className="entry-content-container">
-            <p className="entry-content">{entry.text}</p>
+    <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+      <div className="content-box">
+        <div className="inner-container">
+          <div className="entry-section">
+            <h2>Journal Entry</h2>
+            <h3>{entry.title}</h3>
+            <div className="entry-content-container">
+              <p className="entry-content">{entry.text}</p>
+            </div>
+          </div>
+
+          <div className="analysis-section">
+            <h2>Mood Analysis</h2>
+            <div className="analysis-content-container">
+              <p>
+                <strong>Sentiment:</strong> {mood.overall_sentiment}
+              </p>
+              <p>
+                <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
+              </p>
+              <p>
+               <strong>Summary:</strong> {mood.summary}
+              </p>
+              <p>
+                <strong>Suggestions:</strong> {mood.suggestions}
+              </p>
+
+              {mood.emotions.length > 0 && (
+                <>
+                  <h3>Detected Emotions</h3>
+                  <ul>
+                    {mood.emotions.map((e, i) => (
+                      <li key={i}>{e.label}: {(e.score * 100).toFixed(1)}%</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              <p>
+                <small>
+                  Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
+                </small>
+              </p>
+            </div>    
+            <button className="back-button" onClick={() => navigate("/Homepage")}>
+              ← Back to Homepage
+            </button>
           </div>
         </div>
-
-        <div className="analysis-section">
-          <h2>Mood Analysis</h2>
-          <div className="analysis-content-container">
-            <p>
-              <strong>Sentiment:</strong> {mood.overall_sentiment}
-            </p>
-            <p>
-              <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
-            </p>
-            <p>
-              <strong>Summary:</strong> {mood.summary}
-            </p>
-            <p>
-              <strong>Suggestions:</strong> {mood.suggestions}
-            </p>
-
-            {mood.emotions.length > 0 && (
-              <>
-                <h3>Detected Emotions</h3>
-                <ul>
-                  {mood.emotions.map((e, i) => (
-                    <li key={i}>{e.label}: {(e.score * 100).toFixed(1)}%</li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            <p>
-              <small>
-                Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
-              </small>
-            </p>
-          </div>    
-          <button className="back-button" onClick={() => navigate("/Homepage")}>
-            ← Back to Homepage
-          </button>
-        </div>
       </div>
-    </div>
+    </div>  
   );
 };
 

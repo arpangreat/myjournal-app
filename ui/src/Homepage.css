@@ -203,7 +203,7 @@ body {
 
 .entry-time {
   font-size: 14px;
-  color: #555;
+  color: #0b0b0b;
   font-weight: bold;
   margin-left: auto;
   /* Moves time to the right */
@@ -398,30 +398,34 @@ input:checked+.slider::before {
 }
 
 .dark-mode .sidebar {
-  background: #242526;
+  background:linear-gradient(45deg, #1e000e, #25061a);
 }
 
 .dark-mode .homepage-content {
-  background: #333;
-  color: white;
-}
+  background: #060107;
+  color: rgb(183, 181, 181);
+}    
 
 .dark-mode h2,
 .dark-mode h3 {
-  color: #f4f4f4;
+  color: #868181 !important;
 }
 
 .dark-mode .logout-modal {
-  background: #2e3944;
-  color: white;
+  background: #0f1215;
+  color: rgb(200, 198, 198);
 }
 
 .dark-mode .entries {
-  background: #444;
+  background: #161515;
+}
+
+.dark-mode .entry-time {
+  color: #b4b2b2;
 }
 
 .dark-mode .entry-title {
-  color: black;
+  color: rgb(0, 0, 0);
 }
 
 .dark-mode .entry-text {
@@ -543,7 +547,7 @@ input:checked+.slider::before {
 }
 
 .dark-mode .welcome-text {
-  color: white;
+  color: rgb(203, 202, 202) !important;
 }
 
 
