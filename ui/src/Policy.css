@@ -1,44 +1,47 @@
 /* Policy.css */
 
 .policy-container {
-  max-width: 800px;
-  margin: 50px auto;
-  padding: 2rem;
-  background-color: #ffffff;
-  color: #333333;
-  border-radius: 12px;
+  overflow: scroll ;
+  overflow-x: hidden;
+  max-width: 400px;
+  min-width: 400px;
+  max-height: 400px;
+  min-height: 400px;
+  margin: 40px auto;
+  padding: 30px;
+  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  border: 2px dashed #794c6b;
+  border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  font-family: 'Comic Neue', cursive, sans-serif;
+  text-align: center;
+  resize: none;
+}
+.policy-container::-webkit-scrollbar{
+  width:2px;
+  background-color: #fafafa00;
+  border-radius: 7px;
+}
+.policy-container::-webkit-scrollbar-thumb{
+  width:2px;
+  background-color: #d5d1d17f;
+  border-radius: 7px;
 }
 
 .policy-container.dark-mode {
   background-color: #1e1e1e;
   color: #f0f0f0;
-}
+}s
 
-.policy-container h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
+.policy-container h1{
+   margin-bottom: 1rem;
+  color: #313131;
 }
-
-.policy-container h2 {
-  font-size: 1.5rem;
-  margin-top: 1.5rem;
-  color: #007bff;
+.policy-container h4 {
+  margin-bottom: 1rem;
+  color: #313131;
 }
-
 .policy-container p {
   margin-bottom: 1rem;
-}
-
-.policy-container ul {
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.policy-container ul li {
-  list-style-type: disc;
-  margin-bottom: 0.5rem;
+  color: #292525;
 }
