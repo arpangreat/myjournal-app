@@ -102,6 +102,16 @@ const Home = (
     const savedDarkMode = localStorage.getItem("darkMode");
     return savedDarkMode === "true";
   });
+
+  // Apply dark mode styles to document body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [isDarkMode]);
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -508,13 +518,14 @@ const Home = (
                           fontFamily: userFontFamily, // Apply user's font preference
                         }}
                         onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+                          //const isDark = document.body.classList.contains('dark-mode');
+                          //e.target.style.backgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
                           e.target.style.transform = "translateY(-2px)";
                           e.target.style.boxShadow =
                             "0 4px 8px rgba(0, 0, 0, 0.15)";
                         }}
                         onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = "transparent";
+                          //e.target.style.backgroundColor = "transparent";
                           e.target.style.transform = "translateY(0)";
                           e.target.style.boxShadow = "none";
                         }}
@@ -535,13 +546,15 @@ const Home = (
                           fontFamily: userFontFamily, // Apply user's font preference
                         }}
                         onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+
+                          //const isDark = document.body.classList.contains('dark-mode');
+                          //e.target.style.backgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
                           e.target.style.transform = "translateY(-2px)";
                           e.target.style.boxShadow =
                             "0 4px 8px rgba(0, 0, 0, 0.15)";
                         }}
                         onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = "transparent";
+                          //e.target.style.backgroundColor = "transparent";
                           e.target.style.transform = "translateY(0)";
                           e.target.style.boxShadow = "none";
                         }}

@@ -1,3 +1,30 @@
+.main-container.dark-mode {
+  background-color: #1a1a1a;
+  color: #fdfbfb;
+}
+
+.main-container.dark-mode .content-box {
+  background-color: #222020;
+  color: #ffffff;
+}
+
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode p,
+.dark-mode li {
+  color: #353434;
+}
+
+.main-container.dark-mode .back-button {
+  background-color: #201e1e;
+  color: #f4f4f5;
+  border: 1px solid #555;
+}
+
+.main-container.dark-mode .back-button:hover {
+  background-color: #555;
+}
+
 .content-box {
   width: 100vw;
   /* Full viewport width */
@@ -39,13 +66,13 @@
 .entry-section {
   height: 80vh;
   /* More space for journal entry */
-  background: #e9d8ff;
+  background:  #ddceed;
 }
 
 .analysis-section {
   height: 80vh;
   /* Allocated space for future insights */
-  background: #e4e4e4;
+  background: #e7bbd5;
   color: #000;
 }
 
@@ -72,7 +99,7 @@ h2,
 h3 {
   font-size: 1.8rem;
   text-align: center;
-  color: #7f64a4;
+  color:  #7f64a4;
 }
 
 .analysis-section p {
@@ -139,3 +166,4 @@ h3 {
 .back-button:hover {
   background: linear-gradient(45deg, #a45fff, #ff5e79);
 }
+
