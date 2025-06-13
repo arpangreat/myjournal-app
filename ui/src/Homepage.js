@@ -92,6 +92,21 @@ const getFirstLineWithEllipsis = (text) => {
   return firstLine;
 };
 
+const getTitleWithEllipsis = (title) => {
+  if (!title) return "";
+  
+  // Get first line (split by line breaks)
+  const firstLine = title.split(/\r?\n/)[0].trim();
+  
+  // If title has multiple lines or is very long, show first line with ellipsis
+  if (title.includes("\n") || title.includes("\r") || firstLine.length > 50) {
+    return firstLine.substring(0, 50) + "...";
+  }
+  
+  // Return the first line as is if it's short
+  return firstLine;
+}
+
 const Home = (
   { entries, onAddEntry, onUpdateEntry, onDeleteEntry, onEntriesLoad },
 ) => {
@@ -245,6 +260,33 @@ const Home = (
       document.removeEventListener("click", handleClickOutside);
     };
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    const handleClickOutside = (event) => {
+      const searchContainer = document.querySelector(".search-container");
+      const searchIcon = document.querySelector(".search-icon");
+
+      // If clicked outside search container and search icon, close the search
+      if (
+        searchContainer && !searchContainer.contains(event.target) &&
+        searchIcon && !searchIcon.contains(event.target)
+      ) {
+        setSearchOpen(false);
+      }
+    };
+
+    // Add event listener on next tick to avoid interference with search opening
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [searchOpen]);
 
   //Logout auto-collapse
   useEffect(() => {
@@ -485,7 +527,7 @@ const Home = (
                       <div
                         className="entry-date-wrapper"
                         onClick={(e) => e.stopPropagation()}
-                        style={{ cursor: "default" }}
+                        
                       >
                         <span className="entry-date">
                           {(() => {
@@ -512,9 +554,7 @@ const Home = (
                       <h4
                         className="entry-title"
                         style={{
-                          cursor: "pointer",
-                          transition: "all 0.3s ease",
-                          borderRadius: "8px",
+                          
                           fontFamily: userFontFamily, // Apply user's font preference
                         }}
                         onMouseEnter={(e) => {
@@ -530,7 +570,7 @@ const Home = (
                           e.target.style.boxShadow = "none";
                         }}
                       >
-                        {entry.title}
+                        {getTitleWithEllipsis(entry.title)}
                       </h4>
 
                       <div

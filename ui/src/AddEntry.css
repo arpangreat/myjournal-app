@@ -41,7 +41,7 @@
 }
 
 .submit-entry-btn {
-  background: linear-gradient(45deg, #64f9f6, #d568a6);
+  background: linear-gradient(45deg, #b983ff, #ff8196);
   color: rgb(255, 255, 255);
   border: none;
   box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); 
@@ -54,7 +54,7 @@
 }
 
 .submit-entry-btn:hover {
-  background: linear-gradient(45deg, #2cddda, #e42893f0);
+  background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
 .cancel-btn{
@@ -67,10 +67,10 @@
   cursor: pointer;
   margin-top: 12px;
   transition: background-color 0.3s ease;
-  background: linear-gradient(45deg, #56fffc, #d568a6);
+  background: linear-gradient(45deg, #b983ff, #ff8196);
 }
 .cancel-btn:hover{
-  background: linear-gradient(45deg, #21bab7, #e42893f0);
+  background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
 .font-selector {

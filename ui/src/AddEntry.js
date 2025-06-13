@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AddEntry.css";
 
@@ -19,58 +19,76 @@ const AddEntry = ({ onAddEntry }) => {
   });
   const [showFontList, setShowFontList] = useState(false);
 
+  // Ref for font selector container
+  const fontSelectorRef = useRef(null);
+
   const fonts = [
-    "Arial",
-    "Wide Latin",
-    "Vladimir Script",
-    "Showcard Gothic",
     "Algerian",
+    "Arial",
+    "Book Antiqua",
+    "Bookman Old Style",    
     "Bradley Hand ITC",
-    "Matura MT Script Capitals",
     "Broadway",
-    "Bauhaus 93",
-    "Chiller",
     "Calibri",
     "Cambria",
     "Candara",
+    "Century Gothic",
+    "Chiller",
     "Comic Sans MS",
     "Consolas",
     "Constantia",
     "Corbel",
     "Courier New",
-    "Franklin Gothic Medium",
-    "Georgia",
-    "Helvetica",
-    "Impact",
-    "Lucida Console",
-    "Lucida Sans Unicode",
-    "Palatino Linotype",
-    "Segoe UI",
-    "Tahoma",
-    "Times New Roman",
-    "Trebuchet MS",
-    "Verdana",
-    "Century Gothic",
-    "Garamond",
-    "Bookman Old Style",
-    "Book Antiqua",
     "Elephant",
+    "Franklin Gothic Medium",
     "Futura",
+    "Garamond",
+    "Georgia",
     "Gill Sans MT",
     "Harlow Solid Italic",
+    "Helvetica",
+    "Impact",
     "Ink Free",
     "Kristen ITC",
     "Leelawadee UI",
+    "Lucida Console",
+    "Lucida Sans Unicode",
     "Magneto",
+    "Matura MT Script Capitals", 
     "MV Boli",
+    "Palatino Linotype",
     "Perpetua",
     "Ravie",
     "Rockwell",
+    "Segoe UI",
     "Showcard Gothic",
     "Snap ITC",
     "Stencil",
-    "Tw Cen MT"
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Tw Cen MT",
+    "Vladimir Script",
+    "Verdana",  
+    "Wide Latin"
   ];
+
+  // Handle clicks outside font selector
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (fontSelectorRef.current && !fontSelectorRef.current.contains(event.target)) {
+        setShowFontList(false);
+      }
+    };
+
+    if (showFontList) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFontList]);
 
   // Listen for dark mode changes from localStorage (cross-tab sync)
   useEffect(() => {
@@ -194,7 +212,7 @@ const AddEntry = ({ onAddEntry }) => {
       <h2>📝 New Journal Entry</h2>
 
 
-      <div className="font-selector">
+      <div className="font-selector" ref={fontSelectorRef}>
         <circle-button
           onClick={() => setShowFontList(!showFontList)}
           className="font-toggle-btn"
@@ -209,7 +227,9 @@ const AddEntry = ({ onAddEntry }) => {
                 key={font}
                 onClick={() => handleFontSelect(font)}
                 style={{ 
-                  fontFamily: font
+                  fontFamily: font,
+                  color: selectedFont === font ? 'slategray' : 'inherit',
+                  fontWeight: selectedFont === font ? 'bold' : 'normal'
                 }}
                 className={selectedFont === font ? 'selected-font' : ''}
               >
@@ -220,16 +240,28 @@ const AddEntry = ({ onAddEntry }) => {
         )}
       </div>
 
-
-      <input
-        type="text"
-        placeholder="Entry Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="entry-title"
-        disabled={isSubmitting}
-        style={{ fontFamily: selectedFont }}
-      />
+      <div className="title-input-container">
+        <div className="character-count" style={{ 
+          textAlign: 'left', 
+          fontSize: '12px'
+        }}>
+          {100 - title.length}
+        </div>
+        <input
+          type="text"
+          placeholder="Entry Title"
+          value={title}
+          onChange={(e) => {
+            if (e.target.value.length <= 100) {
+              setTitle(e.target.value)
+            }
+          }}
+          className="entry-title"
+          disabled={isSubmitting}
+          style={{ fontFamily: selectedFont }}
+          maxLength={100}
+        />
+      </div>
 
       <textarea
         placeholder="What's on your mind?"
