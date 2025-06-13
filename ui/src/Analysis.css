@@ -25,6 +25,8 @@
   background-color: #555;
 }
 
+
+
 .content-box {
   width: 100vw;
   /* Full viewport width */
@@ -67,6 +69,28 @@
   height: 80vh;
   /* More space for journal entry */
   background:  #ddceed;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+}
+
+.entry-scrollable-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 3rem); /* Account for "Journal Entry" h2 */
+  overflow: hidden;
+
+}
+
+.entry-title {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+  margin: 0 0 1rem 0;
+  flex-shrink: 0;
 }
 
 .analysis-section {
@@ -100,6 +124,8 @@ h3 {
   font-size: 1.8rem;
   text-align: center;
   color:  #7f64a4;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .analysis-section p {
@@ -166,4 +192,3 @@ h3 {
 .back-button:hover {
   background: linear-gradient(45deg, #a45fff, #ff5e79);
 }
-

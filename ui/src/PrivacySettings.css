@@ -17,6 +17,20 @@
   height: 100px,
 }
 
+.settings-group {
+  position: relative; /* Add this if not already present */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0; /* Position it at the far right of the settings-group */
+  top: 0; /* Align with the label */
+  transform: none; /* Remove any existing transform */
+  margin-top: 2px; /* Fine-tune vertical alignment with label text */
+  top: -3px; /* Move up by 2px, adjust as needed */
+  cursor: pointer;
+}
+
 /*
 .privacy-settings-container::-webkit-scrollbar{
   width: 5px;

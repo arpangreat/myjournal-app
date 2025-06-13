@@ -14,6 +14,12 @@ const PrivacySettings = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // Password visibility states
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
   // Fetch current user data on component mount
   useEffect(() => {
     fetchUserData();
@@ -145,38 +151,68 @@ const PrivacySettings = () => {
 
       <div className="settings-group">
         <label className="settings-label">Current Password</label>
-        <input
-          type="password"
-          className="settings-input"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          disabled={loading}
-          placeholder="Enter current password to change"
-        />
+        <div className="password-input-container">
+          <input
+            type={showCurrentPassword ? "text" : "password"}
+            className="settings-input"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            disabled={loading}
+            placeholder="Enter current password to change"
+          />
+          <circle-button
+            type="button"
+            className="password-toggle-btn"
+            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+            disabled={loading}
+          >
+            {showCurrentPassword ? "👁️" : "👁️‍🗨️"}
+          </circle-button>
+        </div>
       </div>
 
       <div className="settings-group">
         <label className="settings-label">New Password</label>
-        <input
-          type="password"
-          className="settings-input"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          disabled={loading}
-          placeholder="Enter new password (min 6 characters)"
-        />
+        <div className="password-input-container">
+          <input
+            type={showNewPassword ? "text" : "password"}
+            className="settings-input"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            disabled={loading}
+            placeholder="Enter new password (min 6 characters)"
+          />
+          <circle-button
+            type="button"
+            className="password-toggle-btn"
+            onClick={() => setShowNewPassword(!showNewPassword)}
+            disabled={loading}
+          >
+            {showNewPassword ? "👁️" : "👁️‍🗨️"}
+          </circle-button>
+        </div>
       </div>
 
       <div className="settings-group">
         <label className="settings-label">Confirm New Password</label>
-        <input
-          type="password"
-          className="settings-input"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={loading}
-          placeholder="Confirm new password"
-        />
+        <div className="password-input-container">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            className="settings-input"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            disabled={loading}
+            placeholder="Confirm new password"
+          />
+          <circle-button
+            type="button"
+            className="password-toggle-btn"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            disabled={loading}
+          >
+            {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+          </circle-button>
+        </div>
       </div>
 
       <div className="settings-actions">

@@ -130,12 +130,13 @@ const Analysis = () => {
         <div className="inner-container">
           <div className="entry-section">
             <h2>Journal Entry</h2>
-            <h3>{entry.title}</h3>
-            <div className="entry-content-container">
-              <p className="entry-content">{entry.text}</p>
+            <div className="entry-scrollable-container">
+              <h3 className="entry-title">{entry.title}</h3>
+              <div className="entry-content-container">
+                <p className="entry-content">{entry.text}</p>
+              </div>
             </div>
           </div>
-
           <div className="analysis-section">
             <h2>Mood Analysis</h2>
             <div className="analysis-content-container">

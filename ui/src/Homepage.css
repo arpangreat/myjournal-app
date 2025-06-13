@@ -181,6 +181,13 @@ body {
   font-weight: bold;
   color: #333;
   margin-bottom: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
   /* Adds spacing before entry text */
 }
 
@@ -198,6 +205,9 @@ body {
   justify-content: space-between;
   /* Pushes time to the right */
   align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: default;
   width: 100%;
 }
 
