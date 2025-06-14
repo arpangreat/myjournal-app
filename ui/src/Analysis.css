@@ -240,3 +240,34 @@ h3 {
     border-color: transparent;
   }
 }
+
+.main-container.dark-mode .inner-container {
+  background: linear-gradient(55deg, #360d1f, #5c245c, #211a28);
+}
+
+.main-container.dark-mode .entry-section {
+  background: linear-gradient(45deg, #7c687e, #61333d42);
+}
+
+.main-container.dark-mode .analysis-section {
+  background: linear-gradient(45deg, #ab8496d4, #4f3b711d);
+}
+
+.main-container.dark-mode .entry-content {
+  background: linear-gradient(45deg, #ab849600, #4f3b7100);
+}
+.main-container.dark-mode .entry-content {
+  color: #000;
+}
+.main-container.dark-mode .entry-content {
+  color: #000;
+}
+
+/*.main-container.dark-mode .entry-title {
+  background-color: #360d1f00;         /* dark background for title */
+  /*color: #000000;                 /* light text */
+  /*font-weight: bold;              /* make the title stand out */
+  /*box-shadow: 0 0 8px rgba(0,0,0,0.5); /* soft shadow for depth */
+  /*border: #360d1f;
+}
+*/
