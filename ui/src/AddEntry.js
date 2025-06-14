@@ -208,7 +208,7 @@ const AddEntry = ({ onAddEntry }) => {
   };
 
   return (
-    <div className={`add-entry-page ${isDarkMode ? "dark-mode" : ""}`}>
+    <div className={`add-entry-page ${isDarkMode ? "dark-mode" : ""}`}>     
       <h2>📝 New Journal Entry</h2>
 
 

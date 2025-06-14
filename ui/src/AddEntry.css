@@ -135,3 +135,45 @@
 .font-list li:hover {
   background-color: #f0e6e65a;
 }
+
+/*.add-entry-page {
+  background-color: #ffffff;  /* light mode default background */
+  /*padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}*/
+
+/* Dark mode styles */
+.add-entry-page.dark-mode {
+  background: linear-gradient(55deg, #360d1f, #5c245c, #211a28);  /* dark content background */
+  color: #000000;             /* optional: light text */
+}
+
+/*.add-entry-page input,
+.add-entry-page textarea {
+  background-color: inherit;
+  color: inherit;
+  border: 1px solid #ccc;
+}*/
+
+.add-entry-page.dark-mode input,
+.add-entry-page.dark-mode textarea {
+  background-color: #b692b4;
+  color: #330017c0;
+  border: 1px solid #5a5959;
+}
+
+/*.add-entry-page button {
+  
+}
+
+.add-entry-page.dark-mode button {
+
+}*/
+.add-entry-page.dark-mode h2 {
+  color: #916ca9 !important;  /* light color for heading */
+}
+
+
