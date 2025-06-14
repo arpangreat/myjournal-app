@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./Analysis.css"; 
+import "./Analysis.css";
 
 const Analysis = () => {
   const { id: entryId } = useParams();
@@ -13,30 +13,50 @@ const Analysis = () => {
 
   // Add dark mode state that reads from localStorage
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    return savedDarkMode === 'true';
+    const savedDarkMode = localStorage.getItem("darkMode");
+    return savedDarkMode === "true";
   });
-  
+
+  const [typedSuggestion, setTypedSuggestion] = useState("");
+
+  useEffect(() => {
+    if (!mood?.suggestions) return;
+
+    let index = 0;
+    const speed = 30; // ms per character
+
+    const interval = setInterval(() => {
+      if (index < mood.suggestions.length) {
+        setTypedSuggestion((prev) => prev + mood.suggestions.charAt(index));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [mood?.suggestions]);
+
   // Listen for dark mode changes from localStorage (cross-tab sync)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'darkMode') {
-        setIsDarkMode(e.newValue === 'true');
+      if (e.key === "darkMode") {
+        setIsDarkMode(e.newValue === "true");
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+
     // Also check for changes periodically (in case user changes mode in same tab)
     const interval = setInterval(() => {
-      const currentDarkMode = localStorage.getItem('darkMode') === 'true';
+      const currentDarkMode = localStorage.getItem("darkMode") === "true";
       if (currentDarkMode !== isDarkMode) {
         setIsDarkMode(currentDarkMode);
       }
     }, 1000);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
   }, [isDarkMode]);
@@ -44,14 +64,14 @@ const Analysis = () => {
   // Apply dark mode styles to document body
   useEffect(() => {
     if (isDarkMode) {
-      document.body.classList.add('dark-mode');
+      document.body.classList.add("dark-mode");
     } else {
-      document.body.classList.remove('dark-mode');
+      document.body.classList.remove("dark-mode");
     }
-    
+
     // Cleanup when component unmounts
     return () => {
-      document.body.classList.remove('dark-mode');
+      document.body.classList.remove("dark-mode");
     };
   }, [isDarkMode]);
 
@@ -82,21 +102,35 @@ const Analysis = () => {
         setEntry(matchedEntry);
 
         // Fetch mood analysis
-        const moodRes = await fetch(
-          `http://localhost:8080/api/entries/${entryId}/mood`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+        // Retry fetching mood analysis up to 10 times
+        let moodData = null;
+        let attempts = 0;
+        while (attempts < 10) {
+          const moodRes = await fetch(
+            `http://localhost:8080/api/entries/${entryId}/mood`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             },
-          },
-        );
+          );
 
-        if (!moodRes.ok) {
-          const text = await moodRes.text();
-          throw new Error(`Mood fetch failed: ${text}`);
+          if (moodRes.ok) {
+            moodData = await moodRes.json();
+            break;
+          }
+
+          // Wait 2 seconds before retrying
+          await new Promise((res) => setTimeout(res, 2000));
+          attempts++;
         }
 
-        const moodData = await moodRes.json();
+        if (!moodData) {
+          throw new Error(
+            "Mood analysis is still processing. Please try again later.",
+          );
+        }
+
         setMood(moodData);
       } catch (err) {
         console.error("Analysis error:", err);
@@ -112,14 +146,17 @@ const Analysis = () => {
       <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="content-box">
           <h2>Error: {error}</h2>
-        </div> 
+        </div>
       </div>
     );
   }
-  if (!entry || !mood) {
+  if (!entry) {
     return (
-      <div className="content-box">
-        <h2>Loading...</h2>
+      <div className="main-container">
+        <div className="content-box">
+          <div className="spinner" />
+          <p className="loading-text">Loading journal entry...</p>
+        </div>
       </div>
     );
   }
@@ -139,44 +176,60 @@ const Analysis = () => {
           </div>
           <div className="analysis-section">
             <h2>Mood Analysis</h2>
-            <div className="analysis-content-container">
-              <p>
-                <strong>Sentiment:</strong> {mood.overall_sentiment}
-              </p>
-              <p>
-                <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
-              </p>
-              <p>
-               <strong>Summary:</strong> {mood.summary}
-              </p>
-              <p>
-                <strong>Suggestions:</strong> {mood.suggestions}
-              </p>
+            {!mood
+              ? (
+                <div className="analysis-loading-container">
+                  <div className="spinner" />
+                  <p className="loading-text">Analyzing your mood...</p>
+                </div>
+              )
+              : (
+                <div className="analysis-content-container">
+                  <p>
+                    <strong>Sentiment:</strong> {mood.overall_sentiment}
+                  </p>
+                  <p>
+                    <strong>Score:</strong> {mood.sentiment_score.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Summary:</strong> {mood.summary}
+                  </p>
+                  <p>
+                    <strong>Suggestions:</strong>{" "}
+                    <span className="typed-suggestion">{typedSuggestion}</span>
+                  </p>
 
-              {mood.emotions.length > 0 && (
-                <>
-                  <h3>Detected Emotions</h3>
-                  <ul>
-                    {mood.emotions.map((e, i) => (
-                      <li key={i}>{e.label}: {(e.score * 100).toFixed(1)}%</li>
-                    ))}
-                  </ul>
-                </>
+                  {mood.emotions.length > 0 && (
+                    <>
+                      <h3>Detected Emotions</h3>
+                      <ul>
+                        {mood.emotions.map((e, i) => (
+                          <li key={i}>
+                            {e.label}: {(e.score * 100).toFixed(1)}%
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <p>
+                    <small>
+                      Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
+                    </small>
+                  </p>
+                </div>
               )}
 
-              <p>
-                <small>
-                  Analyzed: {new Date(mood.analyzed_at).toLocaleString()}
-                </small>
-              </p>
-            </div>    
-            <button className="back-button" onClick={() => navigate("/Homepage")}>
+            <button
+              className="back-button"
+              onClick={() => navigate("/Homepage")}
+            >
               ← Back to Homepage
             </button>
           </div>
         </div>
       </div>
-    </div>  
+    </div>
   );
 };
 

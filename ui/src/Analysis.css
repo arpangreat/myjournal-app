@@ -48,7 +48,7 @@
   display: flex;
   flex-direction: row;
   /* Entry & Analysis sections in a row */
-  background: linear-gradient(45deg, #332749, #dbd1ff,#c476af);
+  background: linear-gradient(45deg, #332749, #dbd1ff, #c476af);
   border-radius: 12px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
   padding: 20px;
@@ -68,7 +68,7 @@
 .entry-section {
   height: 80vh;
   /* More space for journal entry */
-  background:  #ddceed;
+  background: #ddceed;
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -78,7 +78,8 @@
 .entry-scrollable-container {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 3rem); /* Account for "Journal Entry" h2 */
+  height: calc(100% - 3rem);
+  /* Account for "Journal Entry" h2 */
   overflow: hidden;
 
 }
@@ -123,7 +124,7 @@ h2,
 h3 {
   font-size: 1.8rem;
   text-align: center;
-  color:  #7f64a4;
+  color: #7f64a4;
   word-wrap: break-word;
   word-break: break-word;
 }
@@ -133,7 +134,8 @@ h3 {
 }
 
 .entry-content-container {
-  max-height: 400px; /* Adjust height as needed */
+  max-height: 400px;
+  /* Adjust height as needed */
   overflow-y: auto;
   padding-right: 8px;
   margin-bottom: 16px;
@@ -151,9 +153,11 @@ h3 {
 }
 
 .analysis-content-container {
-  max-height: 400px; /* Adjust height as needed */
+  max-height: 400px;
+  /* Adjust height as needed */
   overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
   padding-right: 8px;
   margin-bottom: 16px;
 }
@@ -191,4 +195,48 @@ h3 {
 
 .back-button:hover {
   background: linear-gradient(45deg, #a45fff, #ff5e79);
+}
+
+.analysis-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #bbb;
+  border-top-color: #7f64a4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.typed-suggestion {
+  border-right: 2px solid rgba(0, 0, 0, 0.6);
+  padding-right: 4px;
+  white-space: pre-wrap;
+  animation: blink 0.60s step-end infinite;
+  display: inline;
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
 }
