@@ -17,26 +17,6 @@ const Analysis = () => {
     return savedDarkMode === "true";
   });
 
-  const [typedSuggestion, setTypedSuggestion] = useState("");
-
-  useEffect(() => {
-    if (!mood?.suggestions) return;
-
-    let index = 0;
-    const speed = 30; // ms per character
-
-    const interval = setInterval(() => {
-      if (index < mood.suggestions.length) {
-        setTypedSuggestion((prev) => prev + mood.suggestions.charAt(index));
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, speed);
-
-    return () => clearInterval(interval);
-  }, [mood?.suggestions]);
-
   // Listen for dark mode changes from localStorage (cross-tab sync)
   useEffect(() => {
     const handleStorageChange = (e) => {
@@ -196,7 +176,7 @@ const Analysis = () => {
                   </p>
                   <p>
                     <strong>Suggestions:</strong>{" "}
-                    <span className="typed-suggestion">{typedSuggestion}</span>
+                    <span className="typed-suggestion">{mood.suggestions}</span>
                   </p>
 
                   {mood.emotions.length > 0 && (
