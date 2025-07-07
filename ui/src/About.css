@@ -42,3 +42,24 @@
   color: #231e1d;
   margin-top: 0px;
 }
+
+/* Dark mode styles for About page */
+.about-container.dark-mode {
+  background-color: #1e1e1e;
+  color: #674765;
+  background: linear-gradient(55deg, #1b0909, #100a0f, #1c0018);
+  border: 2px dashed #4a5568;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/*.dark .about-container::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a3f;
+}
+
+.about-container.dark-mode h2 {
+  color: #d4d3d3 important!;
+}*/
+
+.about-container.dark-mode p {
+  color: #795c5c;
+}
