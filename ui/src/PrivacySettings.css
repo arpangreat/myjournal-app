@@ -10,11 +10,17 @@
   background: linear-gradient(55deg, #332749, #dbd1ff, #c476af);
   border: 2px dashed #794c6b;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.205);
   font-family: 'Comic Neue', cursive, sans-serif;
   text-align: center;
   resize: none;
   height: 100px,
+}
+
+.privacy-settings-container.dark-mode {
+  background: linear-gradient(55deg, #19091c, #141414, #150b1b);
+  border: 2px dashed #4a5568;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .settings-group {
@@ -50,6 +56,11 @@
   color: #000000;
 }
 
+/* Dark mode styles for labels */
+.privacy-settings-container.dark-mode .settings-label {
+  color: #9ea2a7;
+}
+
 .settings-input {
   width: 100%;
   padding: 9px 0px;
@@ -58,6 +69,23 @@
   border-radius: 10px;
   transition: border 0.2s;
 }
+
+/* Dark mode styles for inputs */
+.privacy-settings-container.dark-mode .settings-input {
+  background: #5b4161;
+  border: 1px solid #4a5568;
+  color: #abaeb2;
+}
+
+.privacy-settings-container.dark-mode .settings-input:focus {
+  border-color: #425f73;
+  outline: none;
+}
+
+.privacy-settings-container.dark-mode .settings-input::placeholder {
+  color: #93a1b3;
+}
+
 
 .settings-input:focus {
   border-color: #2e5276;
@@ -78,6 +106,7 @@
 }
 
 .save-button:hover {
+<<<<<<< HEAD
    background: linear-gradient(45deg, #9c5bf1, #f16d83);
 }
 
@@ -93,3 +122,88 @@
     cursor: pointer;
     transition: background 0.3s ease;
 }
+=======
+  background-color: #0250a4;
+}
+
+/* Dark mode styles for buttons */
+.privacy-settings-container.dark-mode .save-button {
+  background-color: #5f8fb6;
+}
+
+.privacy-settings-container.dark-mode .save-button:hover {
+  background-color: #3e81bf;
+}
+
+.back-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #333b42;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+/* Dark mode styles for back button */
+.privacy-settings-container.dark-mode .back-button {
+  background-color: #718096;
+}
+
+.privacy-settings-container.dark-mode .back-button:hover {
+  background-color: #4a5568;
+}
+
+/* Dark mode styles for password toggle buttons */
+.privacy-settings-container.dark-mode .password-toggle-btn {
+  color: #e2e8f0;
+}
+
+.privacy-settings-container.dark-mode .password-toggle-btn:hover {
+  color: #a0aec0;
+}
+
+/* Dark mode styles for messages 
+.settings-message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/*.settings-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.settings-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}*/
+
+.privacy-settings-container.dark-mode .settings-message.success {
+  color: #5e5e5e;
+}
+
+.privacy-settings-container.dark-mode .settings-message.error {
+  color: #5e5e5e;
+}
+
+/* Dark mode styles for messages 
+.password-input-container {
+  position: relative;
+}
+
+.settings-actions {
+  margin-top: 20px;
+}*/
+>>>>>>> c02330ecad3b38bb9022dd2ac6216a05529c0e4f

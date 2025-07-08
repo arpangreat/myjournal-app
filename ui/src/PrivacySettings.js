@@ -19,6 +19,46 @@ const PrivacySettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    return savedDarkMode === "true";
+  });
+
+  // Apply dark mode styles to document body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [isDarkMode]);
+
+  // Listen for dark mode changes from localStorage
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "darkMode") {
+        setIsDarkMode(e.newValue === "true");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also check for changes periodically (in case user changes dark mode in same tab)
+    const interval = setInterval(() => {
+      const currentDarkMode = localStorage.getItem("darkMode") === "true";
+      if (currentDarkMode !== isDarkMode) {
+        setIsDarkMode(currentDarkMode);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [isDarkMode]);
+
+
 
   // Fetch current user data on component mount
   useEffect(() => {
@@ -131,7 +171,7 @@ const PrivacySettings = () => {
   };
 
   return (
-    <div className="privacy-settings-container">
+    <div className={`privacy-settings-container ${isDarkMode ? "dark-mode" : ""}`}>
       <h2 className="settings-title">Privacy Settings</h2>
 
       {message && <div className="settings-message success">{message}</div>}

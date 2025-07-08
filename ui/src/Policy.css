@@ -30,12 +30,15 @@
 
 .policy-container.dark-mode {
   background-color: #1e1e1e;
-  color: #f0f0f0;
-}s
+  color: #674765;
+  background: linear-gradient(55deg, #1b0909, #100a0f, #1c0018);
+  border: 2px dashed #4a5568;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 
 .policy-container h1{
    margin-bottom: 1rem;
-  color: #313131;
+  color: #6d5062;
 }
 .policy-container h4 {
   margin-bottom: 1rem;
@@ -45,6 +48,7 @@
   margin-bottom: 1rem;
   color: #292525;
 }
+<<<<<<< HEAD
 .back-link{
   position: fixed;
   /* Ensures it stays on top */
@@ -58,3 +62,15 @@
 .back-link:hover{
    background: linear-gradient(45deg, #8738ed, #f34562);
 }
+=======
+
+.policy-container.dark-mode h4 {
+  color: #634f74;
+}
+
+.policy-container.dark-mode p {
+  color: #685562;
+}
+
+
+>>>>>>> c02330ecad3b38bb9022dd2ac6216a05529c0e4f
