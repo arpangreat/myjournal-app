@@ -45,3 +45,16 @@
   margin-bottom: 1rem;
   color: #292525;
 }
+.back-link{
+  position: fixed;
+  /* Ensures it stays on top */
+  left:500px;
+  border-radius: 5px;
+  padding: 7px;
+  background: linear-gradient(45deg, #bf8fff, #ff8b9f);
+  color: white;
+  text-align: center;
+}
+.back-link:hover{
+   background: linear-gradient(45deg, #8738ed, #f34562);
+}

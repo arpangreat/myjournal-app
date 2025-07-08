@@ -31,21 +31,6 @@
   cursor: pointer;
 }
 
-/*
-.privacy-settings-container::-webkit-scrollbar{
-  width: 5px;
-  height: 5px;
-}
-.privacy-settings-container::-webkit-scrollbar-thumb{
-  background: #b9b9b91c;
-  border-radius: 5px;
-}
-.privacy-settings-container::-webkit-scrollbar-track{
-    background: #000000;
-}
-    NOt WORKING, I'LL DO IT LATER
-*/
-
 
 
 .settings-title {
@@ -80,17 +65,31 @@
 }
 
 .save-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #007BFF;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
+    display: block;
+    width: 50%;
+    margin-top: 20px;
+    margin: 20px auto;
+    padding: 12px;
+    background: linear-gradient(45deg, #c89dff, #ff94a6);
+    color: rgb(0 0 0);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .save-button:hover {
-  background-color: #0056b3;
+   background: linear-gradient(45deg, #9c5bf1, #f16d83);
+}
+
+.back-button {
+    display: block;
+    width: 50%;
+    margin-top: 20px;
+    margin: 20px auto;
+    padding: 12px;
+    background: linear-gradient(45deg, #c89dff, #ff94a6);
+    color: rgb(0 0 0);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
