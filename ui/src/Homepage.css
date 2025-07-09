@@ -1,6 +1,5 @@
 /* Homepage.css */
 body {
-  
   background-color: #f4f6f9;
   height: 100vh;
   margin: 0;
@@ -14,7 +13,7 @@ body {
   height: 100vh;
   width: 100vw;
   background-color: #f4f6f9;
-  
+
   position: relative;
   overflow: hidden;
 }
@@ -102,8 +101,8 @@ body {
   padding: 2rem;
   border-radius: 0%;
   box-sizing: border-box;
-  background: linear-gradient(45deg, #332749, #dbd1ff,#c476af);
-  
+  background: linear-gradient(45deg, #332749, #dbd1ff, #c476af);
+
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -218,10 +217,12 @@ body {
   margin-left: auto;
   /* Moves time to the right */
 }
-.delete-btn{
+
+.delete-btn {
   background: linear-gradient(45deg, #b983ff, #ff8196);
 }
-.delete-btn:hover{
+
+.delete-btn:hover {
   background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
@@ -268,7 +269,7 @@ li {
 
 p {
   text-align: center;
-  color: #000000;
+  /* color: #000000; */
 }
 
 li:hover {
@@ -408,18 +409,27 @@ input:checked+.slider::before {
 }
 
 .dark-mode .sidebar {
-  background:linear-gradient(45deg, #1e000e, #25061a);
+  background: linear-gradient(45deg, #1e000e, #25061a);
 }
 
 .dark-mode .homepage-content {
   background: #060107;
   color: rgb(183, 181, 181);
-}    
+}
 
 .dark-mode h2,
 .dark-mode h3 {
   color: #868181 !important;
 }
+
+.dark-mode .user-greeting {
+  color: #fff;
+}
+
+.dark-mode .toggle-btn {
+  color: #fff;
+}
+
 
 .dark-mode .logout-modal {
   background: #0f1215;

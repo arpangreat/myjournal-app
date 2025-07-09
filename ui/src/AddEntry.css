@@ -10,6 +10,8 @@
   font-family: 'Comic Neue', cursive, sans-serif;
   text-align: center;
   resize: none;
+  max-height: 700px;
+  min-height: 600px;
 }
 
 .add-entry-page h2 {
@@ -36,7 +38,7 @@
 }
 
 .entry-text {
-  height: 120px;
+  height: 300px;
   resize: none;
 }
 
