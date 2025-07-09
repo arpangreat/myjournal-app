@@ -1,14 +1,14 @@
 /* src/About.css */
 .about-container {
-  overflow: scroll ;
+  overflow: scroll;
   overflow-x: hidden;
-  max-width: 400px;
-  min-width: 400px;
-  max-height: 400px;
-  min-height: 400px;
+  max-width: 700px;
+  min-width: 700px;
+  max-height: 700px;
+  min-height: 700px;
   margin: 40px auto;
   padding: 30px;
-  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  background: linear-gradient(55deg, #332749, #dbd1ff, #c476af);
   border: 2px dashed #794c6b;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -16,13 +16,15 @@
   text-align: center;
   resize: none;
 }
-.about-container::-webkit-scrollbar{
-  width:2px;
+
+.about-container::-webkit-scrollbar {
+  width: 2px;
   background-color: #fafafa00;
   border-radius: 7px;
 }
-.about-container::-webkit-scrollbar-thumb{
-  width:2px;
+
+.about-container::-webkit-scrollbar-thumb {
+  width: 2px;
   background-color: #d5d1d11f;
   border-radius: 7px;
 }
@@ -30,14 +32,14 @@
 
 .about-container h2 {
   word-spacing: 0px;
-  font-size: 1.4rem;
+  font-size: 2.4rem;
   font-family: 'Comic Neue', cursive, sans-serif;
   color: #3e3b3b;
   margin-bottom: 1rem;
 }
 
 .about-container p {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   margin-bottom: 4px;
   color: #231e1d;
   margin-top: 0px;

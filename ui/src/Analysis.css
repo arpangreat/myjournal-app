@@ -92,6 +92,7 @@
   scrollbar-color: #ccc transparent;
   margin: 0 0 1rem 0;
   flex-shrink: 0;
+  font-size: 1.2rem;
 }
 
 .analysis-section {

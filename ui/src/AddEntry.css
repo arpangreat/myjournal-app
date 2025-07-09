@@ -1,9 +1,9 @@
 .add-entry-page {
-  max-width: 400px;
-  min-width: 400px;
+  max-width: 700px;
+  min-width: 700px;
   margin: 40px auto;
   padding: 30px;
-  background: linear-gradient(55deg, #332749, #dbd1ff,#c476af);
+  background: linear-gradient(55deg, #332749, #dbd1ff, #c476af);
   border: 2px dashed #794c6b;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -44,7 +44,7 @@
   background: linear-gradient(45deg, #b983ff, #ff8196);
   color: rgb(255, 255, 255);
   border: none;
-  box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 10px 22px;
   font-size: 1rem;
   border-radius: 8px;
@@ -57,10 +57,10 @@
   background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
-.cancel-btn{
+.cancel-btn {
   color: rgb(255, 255, 255);
   border: none;
-  box-shadow:0 4px 12px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 10px 22px;
   font-size: 1rem;
   border-radius: 8px;
@@ -69,7 +69,8 @@
   transition: background-color 0.3s ease;
   background: linear-gradient(45deg, #b983ff, #ff8196);
 }
-.cancel-btn:hover{
+
+.cancel-btn:hover {
   background: linear-gradient(45deg, #8738ed, #f34562);
 }
 
@@ -80,7 +81,7 @@
 
 .font-toggle-btn {
   border: none;
-  position:absolute ;
+  position: absolute;
   top: -90px;
   right: -20px;
   resize: none;
@@ -89,10 +90,10 @@
   border-radius: 8px;
   cursor: pointer;
   margin-top: 12px;
-  background:#7ee5e300
+  background: #7ee5e300
 }
 
-.font-toggle-btn:hover{
+.font-toggle-btn:hover {
   background: #7ee5e300
 }
 
@@ -101,8 +102,8 @@
   top: -60px;
   right: -10px;
   resize: none;
-  font-display:fixed;
-  background: linear-gradient(45deg,#8d7ee5,#ffb3b3);
+  font-display: fixed;
+  background: linear-gradient(45deg, #8d7ee5, #ffb3b3);
   border-radius: 7px;
   border: 1px solid #cccccc83;
   max-height: 150px;
@@ -110,17 +111,19 @@
   overflow-x: hidden;
   margin-top: 8px;
   padding: 0;
-  list-style:none;
+  list-style: none;
   width: 200px;
   z-index: 10;
 }
-.font-list::-webkit-scrollbar{
-  width:2px;
+
+.font-list::-webkit-scrollbar {
+  width: 2px;
   background-color: #fafafa00;
   border-radius: 7px;
 }
-.font-list::-webkit-scrollbar-thumb{
-  width:2px;
+
+.font-list::-webkit-scrollbar-thumb {
+  width: 2px;
   background-color: #d5d1d17f;
   border-radius: 7px;
 }
@@ -138,7 +141,7 @@
 
 /*.add-entry-page {
   background-color: #ffffff;  /* light mode default background */
-  /*padding: 20px;
+/*padding: 20px;
   border-radius: 8px;
   max-width: 600px;
   margin: auto;
@@ -147,8 +150,10 @@
 
 /* Dark mode styles */
 .add-entry-page.dark-mode {
-  background: linear-gradient(55deg, #360d1f, #5c245c, #211a28);  /* dark content background */
-  color: #000000;             /* optional: light text */
+  background: linear-gradient(55deg, #360d1f, #5c245c, #211a28);
+  /* dark content background */
+  color: #000000;
+  /* optional: light text */
 }
 
 /*.add-entry-page input,
@@ -173,7 +178,6 @@
 
 }*/
 .add-entry-page.dark-mode h2 {
-  color: #916ca9 !important;  /* light color for heading */
+  color: #916ca9 !important;
+  /* light color for heading */
 }
-
-
