@@ -1923,7 +1923,7 @@ func main() {
 	r.HandleFunc("/api/user/profile", authenticateToken(updateUserProfileHandler)).Methods("PUT")
 	// Setup CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173"}, // Add your frontend URLs
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173", "http://192.168.0.106:3000"}, // Add your frontend URLs
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"*"},

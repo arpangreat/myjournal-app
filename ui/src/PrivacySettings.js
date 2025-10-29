@@ -1,6 +1,7 @@
 // PrivacySettings.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./api.js";
 import "./PrivacySettings.css"; // Optional: for styles
 
 const PrivacySettings = () => {
@@ -73,7 +74,7 @@ const PrivacySettings = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/user/profile", {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -145,7 +146,7 @@ const PrivacySettings = () => {
         updateData.newPassword = newPassword;
       }
 
-      const response = await fetch("http://localhost:8080/api/user/profile", {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

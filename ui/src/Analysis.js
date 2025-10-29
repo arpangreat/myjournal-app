@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Analysis.css";
+import { API_BASE_URL } from "./api.js";
 
 const Analysis = () => {
   const { id: entryId } = useParams();
@@ -64,7 +65,7 @@ const Analysis = () => {
     const fetchEntryAndMood = async () => {
       try {
         // Fetch all entries and find the one with the given ID
-        const entryRes = await fetch("http://localhost:8080/api/entries", {
+        const entryRes = await fetch(`${API_BASE_URL}/entries`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -87,7 +88,7 @@ const Analysis = () => {
         let attempts = 0;
         while (attempts < 10) {
           const moodRes = await fetch(
-            `http://localhost:8080/api/entries/${entryId}/mood`,
+            `${API_BASE_URL}/entries/${entryId}/mood`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

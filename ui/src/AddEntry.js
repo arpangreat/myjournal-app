@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./api.js";
 import "./AddEntry.css";
 
 const AddEntry = ({ onAddEntry }) => {
@@ -160,7 +161,7 @@ const AddEntry = ({ onAddEntry }) => {
         date: new Date().toLocaleDateString("en-US"), // MM/DD/YYYY format to match backend
       };
 
-      const response = await fetch("http://localhost:8080/api/entries", {
+      const response = await fetch(`${API_BASE_URL}/entries`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

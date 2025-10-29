@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Homepage.css";
 
 import { useJournal } from "./context/JournalContext";
+import { API_BASE_URL } from "./api.js";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -195,7 +196,7 @@ const Home = (
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/entries", {
+      const response = await fetch(`${API_BASE_URL}/entries`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -330,7 +331,7 @@ const Home = (
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/entries/${entry.id}`,
+        `${API_BASE_URL}/entries/${entry.id}`,
         {
           method: "DELETE",
           headers: {
